@@ -1,0 +1,72 @@
+app-text-editor:host {
+  display: inline-flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  overflow: auto;
+  border: 1px solid darkgrey;
+  border-radius: 8px;
+  min-height: 85px;
+  min-width: 185px;
+
+  &.text-editor--focus {
+    border-color: blue;
+  }
+}
+
+.text-editor {
+  &__box {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 10px;
+      bottom: 0;
+      left: 15px;
+      right: 15px;
+      box-shadow: 0 0 14px -5px gray;
+    }
+  }
+
+  &__selection {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    z-index: 1;
+    position: relative;
+    padding: 25px 30px 15px;
+    border-radius: 8px;
+    white-space: break-spaces;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &__section {
+    &:not(:last-child) {
+      margin: 0 0 10px;
+    }
+
+    &:last-child {
+      flex-grow: 1;
+    }
+  }
+
+  &__body {
+    font-style: normal;
+    font-weight: normal;
+
+    &--bold {
+      font-weight: bold;
+    }
+
+    &--italic {
+      font-style: italic;
+    }
+  }
+}

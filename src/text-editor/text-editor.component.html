@@ -1,0 +1,24 @@
+<span class="text-editor__box">
+  <span
+    #textEditor
+    class="text-editor__selection"
+    [attr.contenteditable]="!disabled"
+  >
+    @for (section of value; track $index; let i = $index) {
+    <span class="text-editor__section" [attr.data-section_index]="i">
+      @for (body of section.body; track $index; let i = $index) {
+      <span
+        class="text-editor__body"
+        [attr.data-body_index]="i"
+        [ngClass]="{
+          'text-editor__body--bold': body.mod.includes(text_mod.BOLD),
+          'text-editor__body--italic': body.mod.includes(text_mod.ITALIC)
+        }"
+        [innerText]="body.text"
+      >
+      </span>
+      }
+    </span>
+    }
+  </span>
+</span>
