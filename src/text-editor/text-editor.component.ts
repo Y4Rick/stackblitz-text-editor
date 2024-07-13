@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule } from "@angular/common";
 import {
   Component,
   DestroyRef,
@@ -8,39 +8,39 @@ import {
   OnInit,
   ViewChild,
   inject,
-  signal,
-} from '@angular/core';
+  signal
+} from "@angular/core";
 import {
   ControlValueAccessor,
   NG_VALUE_ACCESSOR,
-  ReactiveFormsModule,
-} from '@angular/forms';
-import { Subscription, filter, fromEvent, map, tap } from 'rxjs';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { TextEditorService } from './text-editor.service';
+  ReactiveFormsModule
+} from "@angular/forms";
+import { Subscription, filter, fromEvent, map, tap } from "rxjs";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { TextEditorService } from "./text-editor.service";
 import {
   TextEditorTextModification,
   TextEditorValue,
-  TextEditorHandle,
-} from './text-editor.constants';
-import { InsertUtilityService } from './utility/insert-text/insert-utility.service';
-import { InsertTextService } from './utility/insert-text/insert-text.service';
-import { InsertTextBodyService } from './utility/insert-text/insert-text-body.service';
-import { InsertTextSectionService } from './utility/insert-text/insert-text-section.service';
-import { InsertTextCollectionService } from './utility/insert-text/insert-text-collection.service';
-import { InsertSectionService } from './utility/insert-section/insert-section.service';
+  TextEditorHandle
+} from "./text-editor.constants";
+import { InsertUtilityService } from "./utility/insert-text/insert-utility.service";
+import { InsertTextService } from "./utility/insert-text/insert-text.service";
+import { InsertTextBodyService } from "./utility/insert-text/insert-text-body.service";
+import { InsertTextSectionService } from "./utility/insert-text/insert-text-section.service";
+import { InsertTextCollectionService } from "./utility/insert-text/insert-text-collection.service";
+import { InsertSectionService } from "./utility/insert-section/insert-section.service";
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
-  selector: 'app-text-editor',
-  templateUrl: 'text-editor.component.html',
-  styleUrl: 'text-editor.component.scss',
+  selector: "app-text-editor",
+  templateUrl: "text-editor.component.html",
+  styleUrl: "text-editor.component.scss",
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       multi: true,
-      useExisting: TextEditorComponent,
+      useExisting: TextEditorComponent
     },
     TextEditorService,
 
@@ -50,21 +50,21 @@ import { InsertSectionService } from './utility/insert-section/insert-section.se
     InsertTextSectionService,
     InsertTextCollectionService,
 
-    InsertSectionService,
-  ],
+    InsertSectionService
+  ]
 })
 export class TextEditorComponent
   implements ControlValueAccessor, OnInit, OnDestroy
 {
-  @HostBinding('class') public readonly host_selector = 'text-editor';
+  @HostBinding("class") public readonly host_selector = "text-editor";
 
   public readonly text_mod = TextEditorTextModification;
 
-  @HostBinding('class.text-editor--focus') public get focus(): boolean {
+  @HostBinding("class.text-editor--focus") public get focus(): boolean {
     return this._focus();
   }
 
-  @HostBinding('class.text-editor--disabled') public get disabled(): boolean {
+  @HostBinding("class.text-editor--disabled") public get disabled(): boolean {
     return this._disabled();
   }
 
@@ -73,7 +73,7 @@ export class TextEditorComponent
 
   public value: Array<TextEditorValue> = [];
 
-  @ViewChild('textEditor', { static: true })
+  @ViewChild("textEditor", { static: true })
   private readonly text_editor_element!: ElementRef<HTMLSpanElement>;
 
   private textEditorService = inject(TextEditorService);
@@ -96,18 +96,18 @@ export class TextEditorComponent
   constructor(public el: ElementRef, private destroyRef: DestroyRef) {}
 
   public ngOnInit(): void {
-    this.focus$ = fromEvent(this.editor, 'focus')
+    this.focus$ = fromEvent(this.editor, "focus")
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this._focus.set(true));
 
-    this.blur$ = fromEvent(this.editor, 'blur')
+    this.blur$ = fromEvent(this.editor, "blur")
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         this.onTouched();
         this._focus.set(false);
       });
 
-    this.input$ = fromEvent(this.editor, 'beforeinput')
+    this.input$ = fromEvent(this.editor, "beforeinput")
       .pipe(
         takeUntilDestroyed(this.destroyRef),
         tap((event: Event) => event.preventDefault()),
@@ -130,7 +130,7 @@ export class TextEditorComponent
         )
       )
       .subscribe(({ node, update, offset }: TextEditorHandle) => {
-        console.log('handleInputEvent result', node, update, offset);
+        console.log("handleInputEvent result", node, update, offset);
 
         this.textEditorService.watchMutationObserver(node, offset);
 
@@ -138,7 +138,7 @@ export class TextEditorComponent
 
         this.onChange(this.textEditorService.getChangeValue(this.value));
 
-        console.log('after handle_value', this.value);
+        console.log("after handle_value", this.value);
       });
   }
 
@@ -151,7 +151,7 @@ export class TextEditorComponent
   }
 
   public writeValue(value: any | Array<TextEditorValue>): void {
-    console.log('on writeValue', value);
+    console.log("on writeValue", value);
 
     if (this.textEditorService.isValueValid(value)) {
       this.value = value;
@@ -161,7 +161,7 @@ export class TextEditorComponent
       this.onChange(this.textEditorService.getChangeValue(this.value));
     }
 
-    console.log('out writeValue', this.value);
+    console.log("out writeValue", this.value);
   }
 
   public registerOnChange(fn: Function): void {

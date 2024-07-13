@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { InsertUtilityService } from './insert-utility.service';
-import { TextEditorHandle, TextEditorValue } from '../../text-editor.constants';
+import { Injectable, inject } from "@angular/core";
+import { InsertUtilityService } from "./insert-utility.service";
+import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
 
 @Injectable()
 export class InsertTextSectionService {
@@ -11,7 +11,7 @@ export class InsertTextSectionService {
     value: Array<TextEditorValue>,
     selection: Selection
   ): TextEditorHandle {
-    console.log('SelectionSection handel');
+    console.log("SelectionSection handel");
 
     const { section_index, anchor, focus, start, end } =
       this.getSelectionValue(selection);
@@ -36,7 +36,7 @@ export class InsertTextSectionService {
             start,
             end
           ),
-      offset: start + 1,
+      offset: start + 1
     };
   }
 
@@ -44,7 +44,7 @@ export class InsertTextSectionService {
     anchorNode,
     anchorOffset,
     focusNode,
-    focusOffset,
+    focusOffset
   }: Selection): {
     section_index: number;
     anchor: [HTMLSpanElement, number];
@@ -54,7 +54,7 @@ export class InsertTextSectionService {
   } {
     const section_index = this.insertUtilityService.getDataAttrIndex(
       anchorNode!.parentElement!.parentElement as HTMLElement,
-      'section_index'
+      "section_index"
     );
 
     const anchor_body = anchorNode!.parentElement as HTMLElement;
@@ -62,11 +62,11 @@ export class InsertTextSectionService {
 
     const anchor_index = this.insertUtilityService.getDataAttrIndex(
       anchor_body,
-      'body_index'
+      "body_index"
     );
     const focus_index = this.insertUtilityService.getDataAttrIndex(
       focus_body,
-      'body_index'
+      "body_index"
     );
 
     const forward = focus_index > anchor_index;
@@ -76,7 +76,7 @@ export class InsertTextSectionService {
       anchor: forward ? [anchor_body, anchor_index] : [focus_body, focus_index],
       focus: forward ? [focus_body, focus_index] : [anchor_body, anchor_index],
       start: forward ? anchorOffset : focusOffset,
-      end: forward ? focusOffset : anchorOffset,
+      end: forward ? focusOffset : anchorOffset
     };
   }
 
@@ -87,7 +87,7 @@ export class InsertTextSectionService {
     end: number
   ): boolean {
     console.log(
-      'SelectionSection canRemoveFollowingBodies',
+      "SelectionSection canRemoveFollowingBodies",
       end === value[section_index].body[focus_index].text.length
     );
 
@@ -102,7 +102,7 @@ export class InsertTextSectionService {
     focus_index: number,
     start: number
   ): Array<TextEditorValue> {
-    console.log('SelectionSection removeFollowingBodies');
+    console.log("SelectionSection removeFollowingBodies");
 
     const anchor_body = value[section_index].body[anchor_index];
     const next_body = value[section_index].body[focus_index + 1];
@@ -119,7 +119,7 @@ export class InsertTextSectionService {
         : focus_index - anchor_index + 1,
       this.insertUtilityService.preCreateSectionBody(
         anchor_body.text,
-        can_concat ? next_body.text : '',
+        can_concat ? next_body.text : "",
         text,
         start,
         0,
@@ -139,7 +139,7 @@ export class InsertTextSectionService {
     start: number,
     end: number
   ): Array<TextEditorValue> {
-    console.log('SelectionSection keppFollowingBodies');
+    console.log("SelectionSection keppFollowingBodies");
 
     const anchor_body = value[section_index].body[anchor_index];
     const focus_body = value[section_index].body[focus_index];
@@ -161,25 +161,25 @@ export class InsertTextSectionService {
               start,
               end,
               anchor_body.mod
-            ),
+            )
           ]
         : [
             this.insertUtilityService.preCreateSectionBody(
               anchor_body.text,
-              '',
+              "",
               text,
               start,
               0,
               anchor_body.mod
             ),
             this.insertUtilityService.preCreateSectionBody(
-              '',
+              "",
               focus_body.text,
-              '',
+              "",
               0,
               end,
               focus_body.mod
-            ),
+            )
           ])
     );
 

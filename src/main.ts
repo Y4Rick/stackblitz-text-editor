@@ -1,45 +1,38 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { bootstrapApplication } from '@angular/platform-browser';
-import 'zone.js';
-import { TextEditorComponent } from './text-editor/text-editor.component';
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { bootstrapApplication } from "@angular/platform-browser";
+import "zone.js";
+import { TextEditorComponent } from "./text-editor/text-editor.component";
 import {
   FormBuilder,
   FormControl,
   FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+  ReactiveFormsModule
+} from "@angular/forms";
 
 @Component({
-  selector: 'app-root',
+  selector: "app-root",
   standalone: true,
   imports: [TextEditorComponent, FormsModule, ReactiveFormsModule],
   template: `
     <div class="box">
-    <div>
-    <button (click)="setValue(undefined)">set undefine</button>
-    <button (click)="setValue('My string')">set string</button>
-    <button (click)="setValue({ text: 'Zone text' })">set incorect zone</button>
-    <button (click)="setDelta()">set delta</button>
-    <button
-    (click)="
-    setBigDelta()
-    "
-    >
-      set big zone
-    </button>
-    <button
-    (click)="
-    setFullDelta()
-    "
-    >
-      set full zone
-    </button>
-    </div>
-      <app-text-editor style="height: 250px; width: 250px" [formControl]="control"></app-text-editor>
+      <div>
+        <button (click)="setValue(undefined)">set undefine</button>
+        <button (click)="setValue('My string')">set string</button>
+        <button (click)="setValue({ text: 'Zone text' })">
+          set incorect zone
+        </button>
+        <button (click)="setDelta()">set delta</button>
+        <button (click)="setBigDelta()">set big zone</button>
+        <button (click)="setFullDelta()">set full zone</button>
+      </div>
+      <app-text-editor
+        style="height: 250px; width: 250px"
+        [formControl]="control"
+      ></app-text-editor>
       <!-- <app-document-area style="height: 250px; width: 250px" [formControl]="control2"></app-document-area> -->
     </div>
 
-    <input type="text" [formControl]="text">
+    <input type="text" [formControl]="text" />
 
     <!-- <form [formGroup]="form">
     <app-document-area style="height: 250px; width: 250px" formControlName="text"></app-document-area>
@@ -51,14 +44,13 @@ import {
     <input #number_input type="number" [formControl]="number">
     <button (click)="setD(true)">set de control</button>
     <button (click)="setD(false)">set un control</button> -->
-
-  `,
+  `
 })
 export class App implements OnInit {
-  name = 'Angular';
+  name = "Angular";
 
   form = this.fb.group({
-    text: 'this.fb.group',
+    text: "this.fb.group"
   });
 
   // @ViewChild('text_input') text_input!: Element;
@@ -118,12 +110,12 @@ export class App implements OnInit {
   // control2 = new FormControl<any>('control2');
 
   // textarea = new FormControl<any>('hijpoioj');
-  text = new FormControl<any>('');
+  text = new FormControl<any>("");
   // number = new FormControl<any>('hijpoioj');
 
   constructor(private fb: FormBuilder) {
     this.control.valueChanges.subscribe((v) => {
-      console.log('valueChanges', v);
+      console.log("valueChanges", v);
 
       // setTimeout(() => {
       //   console.log('doc value', this.control.value);
@@ -139,15 +131,15 @@ export class App implements OnInit {
     // });
 
     this.text.valueChanges.subscribe((v) => {
-      console.log('text valueChanges', v);
+      console.log("text valueChanges", v);
 
       setTimeout(() => {
-        console.log('doc value', this.control.value);
+        console.log("doc value", this.control.value);
       }, 2000);
     });
 
     this.form.valueChanges.subscribe((v) => {
-      console.log('form valueChanges', v);
+      console.log("form valueChanges", v);
       // console.log('text_input', this.text_input);
 
       // setTimeout(() => {
@@ -181,64 +173,64 @@ export class App implements OnInit {
     this.control.setValue(
       [
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'But I must explain to you how all this ',
-              mod: [],
+              text: "But I must explain to you how all this ",
+              mod: []
             },
             {
-              text: 'mistaken',
-              mod: ['italic'],
+              text: "mistaken",
+              mod: ["italic"]
             },
             {
-              text: ' idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.',
-              mod: [],
-            },
-          ],
+              text: " idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences.',
-              mod: [],
-            },
-          ],
+              text: "No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'The wise man therefore ',
-              mod: [],
+              text: "The wise man therefore ",
+              mod: []
             },
             {
-              text: 'always holds',
-              mod: ['bold'],
+              text: "always holds",
+              mod: ["bold"]
             },
             {
-              text: ' in these ',
-              mod: [],
+              text: " in these ",
+              mod: []
             },
             {
-              text: 'ma',
-              mod: ['italic'],
+              text: "ma",
+              mod: ["italic"]
             },
             {
-              text: 'tt',
-              mod: ['bold'],
+              text: "tt",
+              mod: ["bold"]
             },
             {
-              text: 'ers',
-              mod: ['italic'],
+              text: "ers",
+              mod: ["italic"]
             },
             {
-              text: ' to this principle of selection.',
-              mod: [],
-            },
-          ],
-        },
+              text: " to this principle of selection.",
+              mod: []
+            }
+          ]
+        }
       ]
       //   {
       //   text: 'But I must explain to you how all this mistaken idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences. The wise man therefore always holds in these matters to this principle of selection.',
@@ -305,98 +297,98 @@ export class App implements OnInit {
     this.control.setValue(
       [
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'But I must explain to you how all this ',
-              mod: [],
+              text: "But I must explain to you how all this ",
+              mod: []
             },
             {
-              text: 'mistaken',
-              mod: ['italic'],
+              text: "mistaken",
+              mod: ["italic"]
             },
             {
-              text: ' idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.',
-              mod: [],
-            },
-          ],
+              text: " idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences.',
-              mod: [],
-            },
-          ],
+              text: "No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'The wise man therefore ',
-              mod: [],
+              text: "The wise man therefore ",
+              mod: []
             },
             {
-              text: 'always holds',
-              mod: ['bold'],
+              text: "always holds",
+              mod: ["bold"]
             },
             {
-              text: ' in these ',
-              mod: [],
+              text: " in these ",
+              mod: []
             },
             {
-              text: 'ma',
-              mod: ['italic'],
+              text: "ma",
+              mod: ["italic"]
             },
             {
-              text: 'tt',
-              mod: ['bold'],
+              text: "tt",
+              mod: ["bold"]
             },
             {
-              text: 'ers',
-              mod: ['italic'],
+              text: "ers",
+              mod: ["italic"]
             },
             {
-              text: ' to this principle of selection.',
-              mod: [],
-            },
-          ],
+              text: " to this principle of selection.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ',
-              mod: [],
+              text: "It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. ",
+              mod: []
             },
             {
-              text: 'always holds ',
-              mod: ['bold'],
+              text: "always holds ",
+              mod: ["bold"]
             },
             {
-              text: 'To this principle of selection.',
-              mod: [],
-            },
-          ],
+              text: "To this principle of selection.",
+              mod: []
+            }
+          ]
         },
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'The wise man therefore ',
-              mod: [],
+              text: "The wise man therefore ",
+              mod: []
             },
             {
-              text: 'Lorem Ipsum ',
-              mod: ['bold'],
+              text: "Lorem Ipsum ",
+              mod: ["bold"]
             },
             {
-              text: '- Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).',
-              mod: [],
-            },
-          ],
-        },
+              text: "- Lorem Ipsum as their default model text, and a search for lorem ipsum will uncover many web sites still in their infancy. Various versions have evolved over the years, sometimes by accident, sometimes on purpose (injected humour and the like).",
+              mod: []
+            }
+          ]
+        }
       ]
       //   {
       //   text: 'But I must explain to you how all this mistaken idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error. No one rejects, dislikes, or avoids pleasure itself, because it is pleasure, but because those who do not know consequences. The wise man therefore always holds in these matters to this principle of selection.',
@@ -471,22 +463,22 @@ export class App implements OnInit {
     this.control.setValue(
       [
         {
-          section: 'paragraph',
+          section: "paragraph",
           body: [
             {
-              text: 'But I must explain to you how all this ',
-              mod: [],
+              text: "But I must explain to you how all this ",
+              mod: []
             },
             {
-              text: 'mistaken',
-              mod: ['italic'],
+              text: "mistaken",
+              mod: ["italic"]
             },
             {
-              text: ' idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.',
-              mod: [],
-            },
-          ],
-        },
+              text: " idea. Lorem ipsum dolor sit amet Sed ut perspiciatis unde omnis iste natus error.",
+              mod: []
+            }
+          ]
+        }
         // {
         //   type: 'paragraph',
         //   deltas: [

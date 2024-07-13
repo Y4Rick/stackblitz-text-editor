@@ -1,10 +1,10 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from "@angular/core";
 import {
   TextEditorValue,
   TextEditorHandle,
-  TextEditorSectionType,
-} from '../../text-editor.constants';
-import { InsertUtilityService } from './insert-utility.service';
+  TextEditorSectionType
+} from "../../text-editor.constants";
+import { InsertUtilityService } from "./insert-utility.service";
 
 @Injectable()
 export class InsertTextService {
@@ -16,21 +16,21 @@ export class InsertTextService {
     selection: Selection,
     editor: HTMLSpanElement
   ): TextEditorHandle {
-    console.log('InsertText handel');
+    console.log("InsertText handel");
 
     const value_exists = this.isValueExists(value);
     const { node, offset } = this.getSelectionValue(selection);
 
-    console.log('InsertText value exists', value_exists);
+    console.log("InsertText value exists", value_exists);
 
     return {
       node: value_exists
         ? node
-        : (editor.querySelector('span.text-editor__body') as Node),
+        : (editor.querySelector("span.text-editor__body") as Node),
       update: value_exists
         ? this.updateBodyValue(text, value, node, offset)
         : this.getBodyValue(text),
-      offset: value_exists ? offset + 1 : 1,
+      offset: value_exists ? offset + 1 : 1
     };
   }
 
@@ -46,7 +46,7 @@ export class InsertTextService {
   } {
     return {
       node: selection.anchorNode?.parentElement as HTMLSpanElement,
-      offset: selection.focusOffset,
+      offset: selection.focusOffset
     };
   }
 
@@ -58,11 +58,11 @@ export class InsertTextService {
   ): Array<TextEditorValue> {
     const section_index = this.insertUtilityService.getDataAttrIndex(
       node.parentElement!,
-      'section_index'
+      "section_index"
     );
     const body_index = this.insertUtilityService.getDataAttrIndex(
       node as HTMLElement,
-      'body_index'
+      "body_index"
     );
     const body = value[section_index].body[body_index];
 
@@ -88,11 +88,11 @@ export class InsertTextService {
         section: TextEditorSectionType.PPARAGRAPH,
         body: [
           {
-            text: (text ?? '').toString(),
-            mod: [],
-          },
-        ],
-      },
+            text: (text ?? "").toString(),
+            mod: []
+          }
+        ]
+      }
     ];
   }
 }

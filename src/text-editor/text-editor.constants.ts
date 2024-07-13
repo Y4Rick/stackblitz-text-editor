@@ -1,6 +1,6 @@
 export enum TextEditorSectionType {
   // TITLE = 'title',
-  PPARAGRAPH = 'paragraph',
+  PPARAGRAPH = "paragraph"
 
   // ORDER = 'order',
   // BULLET = 'bullet',
@@ -25,8 +25,8 @@ export enum TextEditorSectionType {
 }
 
 export enum TextEditorTextModification {
-  BOLD = 'bold',
-  ITALIC = 'italic',
+  BOLD = "bold",
+  ITALIC = "italic"
 
   // HIGHLIGHT = 'highlight',
   // QUOTATION = 'quotation',
@@ -46,9 +46,9 @@ export enum TextEditorTextModification {
 }
 
 export enum TextEditorInputEventType {
-  INSERT_TEXT = 'insertText',
-  INSERT_PARAGRAPH = 'insertParagraph',
-  INSERT_LINEB_REAK = 'insertLineBreak',
+  INSERT_TEXT = "insertText",
+  INSERT_PARAGRAPH = "insertParagraph",
+  INSERT_LINEB_REAK = "insertLineBreak"
 }
 
 export interface TextEditorValue {

@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from "@angular/core";
 import {
   TextEditorTextModification,
-  TextEditorValue,
-} from '../../text-editor.constants';
+  TextEditorValue
+} from "../../text-editor.constants";
 
 @Injectable()
 export class InsertUtilityService {
@@ -17,7 +17,7 @@ export class InsertUtilityService {
     a?.sort();
     b?.sort();
     console.log(
-      'canConcatBodies a b',
+      "canConcatBodies a b",
       a,
       b,
       JSON.stringify(a) === JSON.stringify(b)
@@ -39,7 +39,7 @@ export class InsertUtilityService {
   } {
     return {
       text: `${anchor.slice(0, start)}${text}${focus.slice(end, focus.length)}`,
-      mod: mod,
+      mod: mod
     };
   }
 }

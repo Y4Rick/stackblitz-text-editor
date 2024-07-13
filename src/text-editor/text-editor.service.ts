@@ -1,16 +1,16 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from "@angular/core";
 import {
   TextEditorValue,
   TextEditorSectionType,
   TextEditorTextModification,
   TextEditorInputEventType,
-  TextEditorHandle,
-} from './text-editor.constants';
-import { InsertTextBodyService } from './utility/insert-text/insert-text-body.service';
-import { InsertTextSectionService } from './utility/insert-text/insert-text-section.service';
-import { InsertTextCollectionService } from './utility/insert-text/insert-text-collection.service';
-import { InsertTextService } from './utility/insert-text/insert-text.service';
-import { InsertSectionService } from './utility/insert-section/insert-section.service';
+  TextEditorHandle
+} from "./text-editor.constants";
+import { InsertTextBodyService } from "./utility/insert-text/insert-text-body.service";
+import { InsertTextSectionService } from "./utility/insert-text/insert-text-section.service";
+import { InsertTextCollectionService } from "./utility/insert-text/insert-text-collection.service";
+import { InsertTextService } from "./utility/insert-text/insert-text.service";
+import { InsertSectionService } from "./utility/insert-section/insert-section.service";
 
 @Injectable()
 export class TextEditorService {
@@ -51,7 +51,7 @@ export class TextEditorService {
                         text: string;
                         mod?: Array<TextEditorTextModification>;
                       }
-                ) => typeof body.text === 'string' && body.text.length
+                ) => typeof body.text === "string" && body.text.length
               )
           );
         }
@@ -70,25 +70,25 @@ export class TextEditorService {
         section: TextEditorSectionType.PPARAGRAPH,
         body: [
           {
-            text: (value ?? '').toString(),
-            mod: [],
-          },
-        ],
-      },
+            text: (value ?? "").toString(),
+            mod: []
+          }
+        ]
+      }
     ];
   }
 
   public getChangeValue(
     value: Array<TextEditorValue>
-  ): Array<TextEditorValue> | '' {
-    return value[0].body[0].text.length ? value : '';
+  ): Array<TextEditorValue> | "" {
+    return value[0].body[0].text.length ? value : "";
   }
 
   public isEditorAvailable(
     doc_element: HTMLSpanElement,
     value: Array<TextEditorValue>
   ): boolean {
-    const box_exist = !!doc_element.querySelector('span.text-editor__box');
+    const box_exist = !!doc_element.querySelector("span.text-editor__box");
 
     if (!box_exist) return box_exist;
 
@@ -100,26 +100,26 @@ export class TextEditorService {
 
     const editor_section = Array.from(editor.children).every(
       (item) =>
-        item.localName === 'span' &&
-        item.classList.contains('text-editor__section') &&
-        item.hasAttribute('data-section_index')
+        item.localName === "span" &&
+        item.classList.contains("text-editor__section") &&
+        item.hasAttribute("data-section_index")
     );
 
     if (!editor_section) return editor_section;
 
     const count_section =
-      doc_element.querySelectorAll('span.text-editor__section')?.length || 0;
+      doc_element.querySelectorAll("span.text-editor__section")?.length || 0;
 
     if (count_section !== value.length) return false;
 
     const section_body = Object.values(
-      doc_element.querySelectorAll('span.text-editor__section')
+      doc_element.querySelectorAll("span.text-editor__section")
     ).every((section) =>
       Array.from(section.children).every(
         (item) =>
-          item.localName === 'span' &&
-          item.classList.contains('text-editor__body') &&
-          (item as HTMLElement).dataset['body_index'] &&
+          item.localName === "span" &&
+          item.classList.contains("text-editor__body") &&
+          (item as HTMLElement).dataset["body_index"] &&
           !item.children.length
       )
     );
@@ -127,17 +127,17 @@ export class TextEditorService {
     if (!section_body) return section_body;
 
     const count_body = Object.values(
-      doc_element.querySelectorAll('span.text-editor__section')
+      doc_element.querySelectorAll("span.text-editor__section")
     ).every(
       (section, index) =>
-        section.querySelectorAll('span.text-editor__body')?.length ===
+        section.querySelectorAll("span.text-editor__body")?.length ===
         value[index].body.length
     );
 
     if (!count_body) return count_body;
 
     const body_available = Object.values(
-      doc_element.querySelectorAll('span.text-editor__section')
+      doc_element.querySelectorAll("span.text-editor__section")
     ).every((section, section_index) =>
       Array.from(section.children).every(
         (item, body_index) =>
@@ -154,7 +154,7 @@ export class TextEditorService {
     value: TextEditorValue[],
     editor: HTMLSpanElement
   ): TextEditorHandle | undefined {
-    console.log('handleInputEvent', event, 'value', value);
+    console.log("handleInputEvent", event, "value", value);
 
     switch (event.inputType) {
       case TextEditorInputEventType.INSERT_TEXT:
@@ -193,7 +193,7 @@ export class TextEditorService {
       (mutations: Array<MutationRecord>) => {
         mutation_observer.disconnect();
 
-        console.log('mutations', mutations);
+        console.log("mutations", mutations);
 
         this.removeMutationObserver(observer_id);
 
@@ -212,7 +212,7 @@ export class TextEditorService {
 
     mutation_observer.observe(node, {
       childList: true,
-      characterData: true,
+      characterData: true
     });
   }
 
@@ -223,7 +223,7 @@ export class TextEditorService {
       this.mutation_observers.clear();
     }
 
-    console.log('clearMutationObserver', this.mutation_observers);
+    console.log("clearMutationObserver", this.mutation_observers);
   }
 
   public cloneValue(value: Array<TextEditorValue>): Array<TextEditorValue> {
@@ -312,6 +312,6 @@ export class TextEditorService {
   private removeMutationObserver(id: string): void {
     this.mutation_observers.delete(id);
 
-    console.log('removeMutationObserver', this.mutation_observers);
+    console.log("removeMutationObserver", this.mutation_observers);
   }
 }

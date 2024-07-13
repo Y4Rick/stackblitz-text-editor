@@ -1,6 +1,6 @@
-import { Injectable, inject } from '@angular/core';
-import { TextEditorHandle, TextEditorValue } from '../../text-editor.constants';
-import { InsertUtilityService } from './insert-utility.service';
+import { Injectable, inject } from "@angular/core";
+import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
+import { InsertUtilityService } from "./insert-utility.service";
 
 @Injectable()
 export class InsertTextCollectionService {
@@ -11,7 +11,7 @@ export class InsertTextCollectionService {
     value: Array<TextEditorValue>,
     selection: Selection
   ): TextEditorHandle {
-    console.log('SelectionCollection handel');
+    console.log("SelectionCollection handel");
 
     const {
       anchor_section,
@@ -19,11 +19,11 @@ export class InsertTextCollectionService {
       anchor_body,
       focus_body,
       start,
-      end,
+      end
     } = this.getSelectionValue(selection);
 
     console.log(
-      'SelectionCollection getSelectionValue',
+      "SelectionCollection getSelectionValue",
       anchor_section,
       focus_section,
       anchor_body,
@@ -50,7 +50,7 @@ export class InsertTextCollectionService {
           anchor_body[1],
           start
         ),
-        offset: start + 1,
+        offset: start + 1
       };
     } else if (
       this.canRemoveFocusBody(value, focus_section[1], focus_body[1], end)
@@ -67,7 +67,7 @@ export class InsertTextCollectionService {
           start,
           end
         ),
-        offset: start + 1,
+        offset: start + 1
       };
     } else {
       return {
@@ -82,7 +82,7 @@ export class InsertTextCollectionService {
           start,
           end
         ),
-        offset: start + 1,
+        offset: start + 1
       };
     }
   }
@@ -91,7 +91,7 @@ export class InsertTextCollectionService {
     anchorNode,
     anchorOffset,
     focusNode,
-    focusOffset,
+    focusOffset
   }: Selection): {
     anchor_section: [HTMLSpanElement, number];
     focus_section: [HTMLSpanElement, number];
@@ -107,11 +107,11 @@ export class InsertTextCollectionService {
 
     const anchor_section_index = this.insertUtilityService.getDataAttrIndex(
       anchorNode!.parentElement!.parentElement as HTMLElement,
-      'section_index'
+      "section_index"
     );
     const focus_section_index = this.insertUtilityService.getDataAttrIndex(
       focusNode!.parentElement!.parentElement as HTMLElement,
-      'section_index'
+      "section_index"
     );
 
     const forward = focus_section_index > anchor_section_index;
@@ -121,11 +121,11 @@ export class InsertTextCollectionService {
 
     const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
       anchor_body,
-      'body_index'
+      "body_index"
     );
     const focus_body_index = this.insertUtilityService.getDataAttrIndex(
       focus_body,
-      'body_index'
+      "body_index"
     );
 
     return {
@@ -142,7 +142,7 @@ export class InsertTextCollectionService {
         ? [focus_body, focus_body_index]
         : [anchor_body, anchor_body_index],
       start: forward ? anchorOffset : focusOffset,
-      end: forward ? focusOffset : anchorOffset,
+      end: forward ? focusOffset : anchorOffset
     };
   }
 
@@ -153,7 +153,7 @@ export class InsertTextCollectionService {
     end: number
   ): boolean {
     console.log(
-      'SelectionCollection canRemoveFullSelectedSections',
+      "SelectionCollection canRemoveFullSelectedSections",
       value[section_index].body.length - 1 === focus_index &&
         end === value[section_index].body[focus_index].text.length
     );
@@ -172,7 +172,7 @@ export class InsertTextCollectionService {
     anchor_body: number,
     start: number
   ): TextEditorValue[] {
-    console.log('SelectionCollection removeFullSelectedSections');
+    console.log("SelectionCollection removeFullSelectedSections");
 
     const body = value[anchor_section].body;
 
@@ -181,7 +181,7 @@ export class InsertTextCollectionService {
       body.length + 1,
       this.insertUtilityService.preCreateSectionBody(
         body[anchor_body].text,
-        '',
+        "",
         text,
         start,
         0,
@@ -205,7 +205,7 @@ export class InsertTextCollectionService {
     end: number
   ): boolean {
     console.log(
-      'SelectionCollection canRemoveFocusBody',
+      "SelectionCollection canRemoveFocusBody",
       end === value[section_index].body[focus_index].text.length
     );
 
@@ -222,7 +222,7 @@ export class InsertTextCollectionService {
     start: number,
     end: number
   ): TextEditorValue[] {
-    console.log('SelectionCollection removeFocusBody');
+    console.log("SelectionCollection removeFocusBody");
 
     const anchor_section = value[anchor_section_index];
     const anchor_section_body = anchor_section.body[anchor_body_index];
@@ -241,7 +241,7 @@ export class InsertTextCollectionService {
       anchor_section.body.length + 1,
       this.insertUtilityService.preCreateSectionBody(
         anchor_section_body.text,
-        can_concat_body ? focus_section_next_body.text : '',
+        can_concat_body ? focus_section_next_body.text : "",
         text,
         start,
         0,
@@ -251,14 +251,14 @@ export class InsertTextCollectionService {
         ? focus_section.body.splice(focus_body_index + 2)
         : [
             this.insertUtilityService.preCreateSectionBody(
-              '',
+              "",
               focus_section_body.text,
-              '',
+              "",
               0,
               end,
               focus_section_body.mod
             ),
-            ...focus_section.body.splice(focus_body_index + 1),
+            ...focus_section.body.splice(focus_body_index + 1)
           ])
     );
 
@@ -281,7 +281,7 @@ export class InsertTextCollectionService {
     start: number,
     end: number
   ): TextEditorValue[] {
-    console.log('SelectionCollection keppFocusBody');
+    console.log("SelectionCollection keppFocusBody");
 
     const anchor_section = value[anchor_section_index];
     const anchor_section_body = anchor_section.body[anchor_body_index];
@@ -299,7 +299,7 @@ export class InsertTextCollectionService {
       anchor_section.body.length + 1,
       this.insertUtilityService.preCreateSectionBody(
         anchor_section_body.text,
-        can_concat_body ? focus_section_body.text : '',
+        can_concat_body ? focus_section_body.text : "",
         text,
         start,
         can_concat_body ? end : 0,
@@ -309,14 +309,14 @@ export class InsertTextCollectionService {
         ? focus_section.body.splice(focus_body_index + 1)
         : [
             this.insertUtilityService.preCreateSectionBody(
-              '',
+              "",
               focus_section_body.text,
-              '',
+              "",
               0,
               end,
               focus_section_body.mod
             ),
-            ...focus_section.body.splice(focus_body_index + 2),
+            ...focus_section.body.splice(focus_body_index + 2)
           ])
     );
 
