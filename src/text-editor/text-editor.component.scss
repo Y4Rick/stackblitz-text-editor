@@ -68,5 +68,13 @@ app-text-editor:host {
     &--italic {
       font-style: italic;
     }
+
+    &:empty {
+      display: block;
+
+      &::before {
+        content: "\00a0";
+      }
+    }
   }
 }

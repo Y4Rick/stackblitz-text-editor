@@ -149,27 +149,28 @@ export class TextEditorService {
     return body_available;
   }
 
-  public handleInputEvent(
-    event: InputEvent,
-    value: TextEditorValue[],
-    editor: HTMLSpanElement
-  ): TextEditorHandle | undefined {
+  public handleInputEvent({
+    event,
+    value,
+    editor
+  }: {
+    event: InputEvent;
+    value: TextEditorValue[];
+    editor: HTMLSpanElement;
+  }): TextEditorHandle | undefined {
     console.log("handleInputEvent", event, "value", value);
 
     switch (event.inputType) {
       case TextEditorInputEventType.INSERT_TEXT:
+        const insert_data = {
+          text: event.data!,
+          value: this.cloneValue(value),
+          selection: this.getDOCSelection()
+        };
+
         return this.getDOCSelection().isCollapsed
-          ? this.insertTextService.handelInsert(
-              event.data!,
-              this.cloneValue(value),
-              this.getDOCSelection(),
-              editor
-            )
-          : this.handleSelectiveInsertTextEvent(
-              event.data!,
-              this.cloneValue(value),
-              this.getDOCSelection()
-            );
+          ? this.insertTextService.handelInsert(insert_data)
+          : this.handleSelectiveInsertTextEvent(insert_data);
 
       case TextEditorInputEventType.INSERT_PARAGRAPH:
       case TextEditorInputEventType.INSERT_LINEB_REAK:
@@ -183,10 +184,31 @@ export class TextEditorService {
   }
 
   public isHandleAvailable(value: TextEditorHandle): boolean {
-    return value?.node && value?.update && value?.offset > -1;
+    return value?.monitor && value?.anchor && value?.focus && !!value?.update;
   }
 
-  public watchMutationObserver(node: Node, collapse_index: number): void {
+  public watchMutationObserver({
+    monitor,
+    anchor,
+    focus
+  }: {
+    monitor: Node;
+    anchor: {
+      host: Node;
+      query: string;
+      offset: number;
+    };
+    focus: {
+      host: Node;
+      query: string;
+      offset: number;
+    };
+  }): void {
+    console.log("watchMutationObserver");
+    console.log("monitor", monitor);
+    console.log("anchor", anchor);
+    console.log("focus", focus);
+
     const observer_id = `observer_${new Date().getTime()}`;
 
     const mutation_observer = new MutationObserver(
@@ -197,20 +219,33 @@ export class TextEditorService {
 
         this.removeMutationObserver(observer_id);
 
-        const added_node = mutations?.at(0)?.addedNodes;
+        const anchor_collapse = (anchor.host as HTMLElement).querySelector(
+          anchor.query
+        );
+        const focus_collapse = (focus.host as HTMLElement).querySelector(
+          focus.query
+        );
 
-        if (added_node) {
+        console.log("anchor_collapse", anchor_collapse);
+        console.log("focus_collapse", focus_collapse);
+
+        if (anchor_collapse && focus_collapse) {
           const selection = this.getDOCSelection();
 
           selection.removeAllRanges();
-          selection.collapse(added_node.item(0), collapse_index);
+          selection.setBaseAndExtent(
+            anchor_collapse.childNodes.item(0),
+            anchor.offset,
+            focus_collapse.childNodes.item(0),
+            focus.offset
+          );
         }
       }
     );
 
     this.pushMutationObserver(mutation_observer, observer_id);
 
-    mutation_observer.observe(node, {
+    mutation_observer.observe(monitor, {
       childList: true,
       characterData: true
     });
@@ -230,27 +265,21 @@ export class TextEditorService {
     return JSON.parse(JSON.stringify(value));
   }
 
-  private handleSelectiveInsertTextEvent(
-    text: string,
-    value: Array<TextEditorValue>,
-    selection: Selection
-  ): TextEditorHandle | undefined {
-    if (this.isSelectionBody(selection)) {
+  private handleSelectiveInsertTextEvent(config: {
+    text: string;
+    value: TextEditorValue[];
+    selection: Selection;
+  }): TextEditorHandle | undefined {
+    if (this.isSelectionBody(config.selection)) {
       // same body
-      return this.insertTextBodyService.handelInsert(text, value, selection);
-    } else if (this.isSelectionSection(selection)) {
+      return this.insertTextBodyService.handelInsert(config);
+    } else if (this.isSelectionSection(config.selection)) {
       // same section
-      return this.insertTextSectionService.handelInsert(text, value, selection);
-    } else if (this.isSelectionCollection(selection)) {
+      return this.insertTextSectionService.handelInsert(config);
+    } else if (this.isSelectionCollection(config.selection)) {
       // full collection
-      return this.insertTextCollectionService.handelInsert(
-        text,
-        value,
-        selection
-      );
-    } else {
-      return;
-    }
+      return this.insertTextCollectionService.handelInsert(config);
+    } else return;
   }
 
   private handleSelectiveInsertSectionEvent(): TextEditorHandle | undefined {

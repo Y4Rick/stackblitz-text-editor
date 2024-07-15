@@ -6,51 +6,91 @@ import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
 export class InsertTextSectionService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert(
-    text: string,
-    value: Array<TextEditorValue>,
-    selection: Selection
-  ): TextEditorHandle {
+  public handelInsert({
+    text,
+    value,
+    selection
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    selection: Selection;
+  }): TextEditorHandle {
     console.log("SelectionSection handel");
 
-    const { section_index, anchor, focus, start, end } =
-      this.getSelectionValue(selection);
+    return this.getTextEditorHandleConfig({
+      text,
+      value,
+      ...this.getSelectionConfig(selection)
+    });
+  }
+
+  private getTextEditorHandleConfig({
+    text,
+    value,
+    section_index,
+    anchor,
+    anchor_body_index,
+    anchor_offset,
+    focus_body_index,
+    focus_offset
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    section_index: number;
+    anchor: HTMLSpanElement;
+    anchor_body_index: number;
+    anchor_offset: number;
+    focus_body_index: number;
+    focus_offset: number;
+  }): TextEditorHandle {
+    const anchor_handle = {
+      host: anchor.parentElement as Node,
+      query: `span.text-editor__body[data-body_index='${anchor_body_index}']`,
+      offset: anchor_offset + 1
+    };
 
     return {
-      node: anchor[0],
-      update: this.canRemoveFollowingBodies(value, section_index, focus[1], end)
-        ? this.removeFollowingBodies(
+      monitor: anchor,
+      anchor: anchor_handle,
+      focus: anchor_handle,
+      update: this.canRemoveFollowingBodies({
+        value,
+        section_index,
+        focus_body_index,
+        focus_offset
+      })
+        ? this.removeFollowingBodies({
             text,
             value,
             section_index,
-            anchor[1],
-            focus[1],
-            start
-          )
-        : this.keppFollowingBodies(
+            anchor_body_index,
+            focus_body_index,
+            anchor_offset
+          })
+        : this.keppFollowingBodies({
             text,
             value,
             section_index,
-            anchor[1],
-            focus[1],
-            start,
-            end
-          ),
-      offset: start + 1
+            anchor_body_index,
+            focus_body_index,
+            anchor_offset,
+            focus_offset
+          })
     };
   }
 
-  private getSelectionValue({
+  private getSelectionConfig({
     anchorNode,
     anchorOffset,
     focusNode,
     focusOffset
   }: Selection): {
     section_index: number;
-    anchor: [HTMLSpanElement, number];
-    focus: [HTMLSpanElement, number];
-    start: number;
-    end: number;
+    anchor: HTMLSpanElement;
+    anchor_body_index: number;
+    anchor_offset: number;
+    focus_body_index: number;
+    focus_offset: number;
   } {
     const section_index = this.insertUtilityService.getDataAttrIndex(
       anchorNode!.parentElement!.parentElement as HTMLElement,
@@ -60,125 +100,148 @@ export class InsertTextSectionService {
     const anchor_body = anchorNode!.parentElement as HTMLElement;
     const focus_body = focusNode!.parentElement as HTMLElement;
 
-    const anchor_index = this.insertUtilityService.getDataAttrIndex(
+    const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
       anchor_body,
       "body_index"
     );
-    const focus_index = this.insertUtilityService.getDataAttrIndex(
+    const focus_body_index = this.insertUtilityService.getDataAttrIndex(
       focus_body,
       "body_index"
     );
 
-    const forward = focus_index > anchor_index;
+    const forward = focus_body_index > anchor_body_index;
 
     return {
       section_index,
-      anchor: forward ? [anchor_body, anchor_index] : [focus_body, focus_index],
-      focus: forward ? [focus_body, focus_index] : [anchor_body, anchor_index],
-      start: forward ? anchorOffset : focusOffset,
-      end: forward ? focusOffset : anchorOffset
+      anchor: forward ? anchor_body : focus_body,
+      anchor_body_index: forward ? anchor_body_index : focus_body_index,
+      anchor_offset: forward ? anchorOffset : focusOffset,
+      focus_body_index: forward ? focus_body_index : anchor_body_index,
+      focus_offset: forward ? focusOffset : anchorOffset
     };
   }
 
-  private canRemoveFollowingBodies(
-    value: Array<TextEditorValue>,
-    section_index: number,
-    focus_index: number,
-    end: number
-  ): boolean {
+  private canRemoveFollowingBodies({
+    value,
+    section_index,
+    focus_body_index,
+    focus_offset
+  }: {
+    value: Array<TextEditorValue>;
+    section_index: number;
+    focus_body_index: number;
+    focus_offset: number;
+  }): boolean {
     console.log(
       "SelectionSection canRemoveFollowingBodies",
-      end === value[section_index].body[focus_index].text.length
+      focus_offset === value[section_index].body[focus_body_index].text.length
     );
 
-    return end === value[section_index].body[focus_index].text.length;
+    return (
+      focus_offset === value[section_index].body[focus_body_index].text.length
+    );
   }
 
-  private removeFollowingBodies(
-    text: string,
-    value: Array<TextEditorValue>,
-    section_index: number,
-    anchor_index: number,
-    focus_index: number,
-    start: number
-  ): Array<TextEditorValue> {
+  private removeFollowingBodies({
+    text,
+    value,
+    section_index,
+    anchor_body_index,
+    focus_body_index,
+    anchor_offset
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    section_index: number;
+    anchor_body_index: number;
+    focus_body_index: number;
+    anchor_offset: number;
+  }): Array<TextEditorValue> {
     console.log("SelectionSection removeFollowingBodies");
 
-    const anchor_body = value[section_index].body[anchor_index];
-    const next_body = value[section_index].body[focus_index + 1];
+    const value_anchor_body = value[section_index].body[anchor_body_index];
+    const value_next_body = value[section_index].body[focus_body_index + 1];
 
-    const can_concat = this.insertUtilityService.canConcatBodies(
-      anchor_body?.mod,
-      next_body?.mod
+    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+      value_anchor_body?.mod,
+      value_next_body?.mod
     );
 
     value[section_index].body.splice(
-      anchor_index,
-      can_concat
-        ? focus_index + 1 - anchor_index + 1
-        : focus_index - anchor_index + 1,
-      this.insertUtilityService.preCreateSectionBody(
-        anchor_body.text,
-        can_concat ? next_body.text : "",
+      anchor_body_index,
+      can_concat_bodies
+        ? focus_body_index + 1 - anchor_body_index + 1
+        : focus_body_index - anchor_body_index + 1,
+      this.insertUtilityService.createSectionBody(
+        value_anchor_body.text,
+        can_concat_bodies ? value_next_body.text : "",
         text,
-        start,
+        anchor_offset,
         0,
-        anchor_body.mod
+        value_anchor_body.mod
       )
     );
 
     return value;
   }
 
-  private keppFollowingBodies(
-    text: string,
-    value: Array<TextEditorValue>,
-    section_index: number,
-    anchor_index: number,
-    focus_index: number,
-    start: number,
-    end: number
-  ): Array<TextEditorValue> {
+  private keppFollowingBodies({
+    text,
+    value,
+    section_index,
+    anchor_body_index,
+    focus_body_index,
+    anchor_offset,
+    focus_offset
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    section_index: number;
+    anchor_body_index: number;
+    focus_body_index: number;
+    anchor_offset: number;
+    focus_offset: number;
+  }): Array<TextEditorValue> {
     console.log("SelectionSection keppFollowingBodies");
 
-    const anchor_body = value[section_index].body[anchor_index];
-    const focus_body = value[section_index].body[focus_index];
+    const value_anchor_body = value[section_index].body[anchor_body_index];
+    const value_focus_body = value[section_index].body[focus_body_index];
 
-    const can_concat = this.insertUtilityService.canConcatBodies(
-      anchor_body?.mod,
-      focus_body?.mod
+    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+      value_anchor_body?.mod,
+      value_focus_body?.mod
     );
 
     value[section_index].body.splice(
-      anchor_index,
-      focus_index - anchor_index + 1,
-      ...(can_concat
+      anchor_body_index,
+      focus_body_index - anchor_body_index + 1,
+      ...(can_concat_bodies
         ? [
-            this.insertUtilityService.preCreateSectionBody(
-              anchor_body.text,
-              focus_body.text,
+            this.insertUtilityService.createSectionBody(
+              value_anchor_body.text,
+              value_focus_body.text,
               text,
-              start,
-              end,
-              anchor_body.mod
+              anchor_offset,
+              focus_offset,
+              value_anchor_body.mod
             )
           ]
         : [
-            this.insertUtilityService.preCreateSectionBody(
-              anchor_body.text,
+            this.insertUtilityService.createSectionBody(
+              value_anchor_body.text,
               "",
               text,
-              start,
+              anchor_offset,
               0,
-              anchor_body.mod
+              value_anchor_body.mod
             ),
-            this.insertUtilityService.preCreateSectionBody(
+            this.insertUtilityService.createSectionBody(
               "",
-              focus_body.text,
+              value_focus_body.text,
               "",
               0,
-              end,
-              focus_body.mod
+              focus_offset,
+              value_focus_body.mod
             )
           ])
     );

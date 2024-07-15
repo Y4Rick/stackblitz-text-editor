@@ -26,7 +26,7 @@ export class InsertUtilityService {
     return JSON.stringify(a) === JSON.stringify(b);
   }
 
-  public preCreateSectionBody(
+  public createSectionBody(
     anchor: string,
     focus: string,
     text: string,

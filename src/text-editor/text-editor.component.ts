@@ -119,20 +119,25 @@ export class TextEditorComponent
         ),
         map(
           (event: Event) =>
-            this.textEditorService.handleInputEvent(
-              event as InputEvent,
-              this.value,
-              this.editor
-            )!
+            this.textEditorService.handleInputEvent({
+              event: event as InputEvent,
+              value: this.value,
+              editor: this.editor
+            })!
         ),
         filter((result: TextEditorHandle) =>
           this.textEditorService.isHandleAvailable(result)
         )
       )
-      .subscribe(({ node, update, offset }: TextEditorHandle) => {
-        console.log("handleInputEvent result", node, update, offset);
 
-        this.textEditorService.watchMutationObserver(node, offset);
+      .subscribe(({ monitor, anchor, focus, update }: TextEditorHandle) => {
+        console.log("handleInputEvent result", monitor, anchor, focus, update);
+        // monitor: Node, host: HTMLElement, query: string, collapse_index: number
+        this.textEditorService.watchMutationObserver({
+          monitor,
+          anchor,
+          focus
+        });
 
         this.value = update;
 

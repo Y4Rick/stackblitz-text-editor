@@ -60,7 +60,16 @@ export interface TextEditorValue {
 }
 
 export interface TextEditorHandle {
-  node: Node;
+  monitor: Node;
+  anchor: {
+    host: Node;
+    query: string;
+    offset: number;
+  };
+  focus: {
+    host: Node;
+    query: string;
+    offset: number;
+  };
   update: Array<TextEditorValue>;
-  offset: number;
 }

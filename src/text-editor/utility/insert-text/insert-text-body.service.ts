@@ -6,64 +6,120 @@ import { InsertUtilityService } from "./insert-utility.service";
 export class InsertTextBodyService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert(
-    text: string,
-    value: Array<TextEditorValue>,
-    selection: Selection
-  ): TextEditorHandle {
+  public handelInsert({
+    text,
+    value,
+    selection
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    selection: Selection;
+  }): TextEditorHandle {
     console.log("SelectionBody handel");
 
-    const { node, start, end } = this.getSelectionValue(selection);
+    const { anchor, anchor_offset, focus_offset } =
+      this.getSelectionConfig(selection);
 
-    return {
-      node,
-      update: this.updateBodyValue(text, value, node, start, end),
-      offset: start + 1
-    };
+    const body_index = this.insertUtilityService.getDataAttrIndex(
+      anchor as HTMLElement,
+      "body_index"
+    );
+    const section_index = this.insertUtilityService.getDataAttrIndex(
+      anchor.parentElement!,
+      "section_index"
+    );
+
+    return this.getTextEditorHandleConfig({
+      text,
+      value,
+      anchor,
+      anchor_offset,
+      focus_offset,
+      section_index,
+      body_index
+    });
   }
 
-  private getSelectionValue(selection: Selection): {
-    node: HTMLSpanElement;
-    start: number;
-    end: number;
+  private getSelectionConfig(selection: Selection): {
+    anchor: HTMLSpanElement;
+    anchor_offset: number;
+    focus_offset: number;
   } {
     const forward = selection.focusOffset > selection.anchorOffset;
 
     return {
-      node: (forward
+      anchor: (forward
         ? selection.anchorNode!.parentElement
         : selection.focusNode!.parentElement) as HTMLSpanElement,
-      start: forward ? selection.anchorOffset : selection.focusOffset,
-      end: forward ? selection.focusOffset : selection.anchorOffset
+      anchor_offset: forward ? selection.anchorOffset : selection.focusOffset,
+      focus_offset: forward ? selection.focusOffset : selection.anchorOffset
     };
   }
 
-  private updateBodyValue(
-    text: string,
-    value: Array<TextEditorValue>,
-    node: HTMLSpanElement,
-    start: number,
-    end: number
-  ): Array<TextEditorValue> {
-    const section_index = this.insertUtilityService.getDataAttrIndex(
-      node.parentElement!,
-      "section_index"
-    );
-    const body_index = this.insertUtilityService.getDataAttrIndex(
-      node as HTMLElement,
-      "body_index"
-    );
+  private getTextEditorHandleConfig({
+    text,
+    value,
+    anchor,
+    anchor_offset,
+    focus_offset,
+    body_index,
+    section_index
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    anchor: HTMLSpanElement;
+    anchor_offset: number;
+    focus_offset: number;
+    body_index: number;
+    section_index: number;
+  }): TextEditorHandle {
+    const anchor_handle = {
+      host: anchor.parentElement as Node,
+      query: `span.text-editor__body[data-body_index='${body_index}']`,
+      offset: anchor_offset + 1
+    };
+
+    return {
+      monitor: anchor,
+      anchor: anchor_handle,
+      focus: anchor_handle,
+      update: this.updateBodyValue({
+        text,
+        value,
+        body_index,
+        section_index,
+        anchor_offset,
+        focus_offset
+      })
+    };
+  }
+
+  private updateBodyValue({
+    text,
+    value,
+    body_index,
+    section_index,
+    anchor_offset,
+    focus_offset
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    body_index: number;
+    section_index: number;
+    anchor_offset: number;
+    focus_offset: number;
+  }): Array<TextEditorValue> {
     const body = value[section_index].body[body_index];
 
     value[section_index].body.splice(
       body_index,
       1,
-      this.insertUtilityService.preCreateSectionBody(
+      this.insertUtilityService.createSectionBody(
         body.text,
         body.text,
         text,
-        start,
-        end,
+        anchor_offset,
+        focus_offset,
         body.mod
       )
     );

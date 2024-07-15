@@ -10,28 +10,43 @@ import { InsertUtilityService } from "./insert-utility.service";
 export class InsertTextService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert(
-    text: string,
-    value: Array<TextEditorValue>,
-    selection: Selection,
-    editor: HTMLSpanElement
-  ): TextEditorHandle {
-    console.log("InsertText handel");
-
+  public handelInsert({
+    text,
+    value,
+    selection
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    selection: Selection;
+  }): TextEditorHandle {
     const value_exists = this.isValueExists(value);
-    const { node, offset } = this.getSelectionValue(selection);
 
-    console.log("InsertText value exists", value_exists);
+    console.log("InsertText handel", "value_exists: ", value_exists);
 
-    return {
-      node: value_exists
-        ? node
-        : (editor.querySelector("span.text-editor__body") as Node),
-      update: value_exists
-        ? this.updateBodyValue(text, value, node, offset)
-        : this.getBodyValue(text),
-      offset: value_exists ? offset + 1 : 1
-    };
+    const { anchor, anchor_offset } = this.getSelectionConfig(
+      selection,
+      value_exists
+    );
+
+    const body_index = this.insertUtilityService.getDataAttrIndex(
+      anchor,
+      "body_index"
+    );
+
+    const section_index = this.insertUtilityService.getDataAttrIndex(
+      anchor.parentElement!,
+      "section_index"
+    );
+
+    return this.getTextEditorHandleConfig({
+      text,
+      value,
+      anchor,
+      anchor_offset,
+      section_index,
+      body_index,
+      value_exists
+    });
   }
 
   private isValueExists(value: Array<TextEditorValue>): boolean {
@@ -40,41 +55,84 @@ export class InsertTextService {
     );
   }
 
-  private getSelectionValue(selection: Selection): {
-    node: HTMLSpanElement;
-    offset: number;
+  private getSelectionConfig(
+    selection: Selection,
+    value_exists: boolean
+  ): {
+    anchor: HTMLSpanElement;
+    anchor_offset: number;
   } {
     return {
-      node: selection.anchorNode?.parentElement as HTMLSpanElement,
-      offset: selection.focusOffset
+      anchor: (value_exists
+        ? selection.anchorNode?.parentElement
+        : selection.anchorNode) as HTMLSpanElement,
+      anchor_offset: selection.anchorOffset
     };
   }
 
-  private updateBodyValue(
-    text: string,
-    value: Array<TextEditorValue>,
-    node: HTMLElement,
-    start: number
-  ): Array<TextEditorValue> {
-    const section_index = this.insertUtilityService.getDataAttrIndex(
-      node.parentElement!,
-      "section_index"
-    );
-    const body_index = this.insertUtilityService.getDataAttrIndex(
-      node as HTMLElement,
-      "body_index"
-    );
+  private getTextEditorHandleConfig({
+    text,
+    value,
+    anchor,
+    anchor_offset,
+    body_index,
+    section_index,
+    value_exists
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    anchor: HTMLSpanElement;
+    anchor_offset: number;
+    body_index: number;
+    section_index: number;
+    value_exists: boolean;
+  }): TextEditorHandle {
+    const anchor_handle = {
+      host: anchor.parentElement as Node,
+      query: `span.text-editor__body[data-body_index='${body_index}']`,
+      offset: value_exists ? anchor_offset + 1 : 1
+    };
+
+    return {
+      monitor: anchor,
+      anchor: anchor_handle,
+      focus: anchor_handle,
+      update: value_exists
+        ? this.updateBodyValue({
+            text,
+            value,
+            body_index,
+            section_index,
+            offset: anchor_offset
+          })
+        : this.getBodyValue(text)
+    };
+  }
+
+  private updateBodyValue({
+    text,
+    value,
+    section_index,
+    body_index,
+    offset
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    section_index: number;
+    body_index: number;
+    offset: number;
+  }): Array<TextEditorValue> {
     const body = value[section_index].body[body_index];
 
     value[section_index].body.splice(
       body_index,
       1,
-      this.insertUtilityService.preCreateSectionBody(
+      this.insertUtilityService.createSectionBody(
         body.text,
         body.text,
         text,
-        start,
-        start,
+        offset,
+        offset,
         body.mod
       )
     );
