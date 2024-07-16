@@ -17,42 +17,42 @@ export class InsertTextBodyService {
   }): TextEditorHandle {
     console.log("SelectionBody handel");
 
-    const { anchor, anchor_offset, focus_offset } =
-      this.getSelectionConfig(selection);
-
-    const body_index = this.insertUtilityService.getDataAttrIndex(
-      anchor as HTMLElement,
-      "body_index"
-    );
-    const section_index = this.insertUtilityService.getDataAttrIndex(
-      anchor.parentElement!,
-      "section_index"
-    );
-
     return this.getTextEditorHandleConfig({
       text,
       value,
-      anchor,
-      anchor_offset,
-      focus_offset,
-      section_index,
-      body_index
+      ...this.getSelectionConfig(selection)
     });
   }
 
-  private getSelectionConfig(selection: Selection): {
+  private getSelectionConfig({
+    anchorNode,
+    anchorOffset,
+    focusNode,
+    focusOffset
+  }: Selection): {
     anchor: HTMLSpanElement;
     anchor_offset: number;
     focus_offset: number;
+    section_index: number;
+    body_index: number;
   } {
-    const forward = selection.focusOffset > selection.anchorOffset;
+    const forward = focusOffset > anchorOffset;
+    const anchor = (
+      forward ? anchorNode!.parentElement : focusNode!.parentElement
+    ) as HTMLSpanElement;
 
     return {
-      anchor: (forward
-        ? selection.anchorNode!.parentElement
-        : selection.focusNode!.parentElement) as HTMLSpanElement,
-      anchor_offset: forward ? selection.anchorOffset : selection.focusOffset,
-      focus_offset: forward ? selection.focusOffset : selection.anchorOffset
+      anchor,
+      anchor_offset: forward ? anchorOffset : focusOffset,
+      focus_offset: forward ? focusOffset : anchorOffset,
+      section_index: this.insertUtilityService.getDataAttrIndex(
+        anchor.parentElement!,
+        "section_index"
+      ),
+      body_index: this.insertUtilityService.getDataAttrIndex(
+        anchor,
+        "body_index"
+      )
     };
   }
 
@@ -73,16 +73,16 @@ export class InsertTextBodyService {
     body_index: number;
     section_index: number;
   }): TextEditorHandle {
-    const anchor_handle = {
+    const handle = this.insertUtilityService.getBodyHandleObject({
       host: anchor.parentElement as Node,
-      query: `span.text-editor__body[data-body_index='${body_index}']`,
+      index: body_index,
       offset: anchor_offset + 1
-    };
+    });
 
     return {
       monitor: anchor,
-      anchor: anchor_handle,
-      focus: anchor_handle,
+      anchor: handle,
+      focus: handle,
       update: this.updateBodyValue({
         text,
         value,

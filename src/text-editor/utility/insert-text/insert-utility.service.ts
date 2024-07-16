@@ -1,8 +1,5 @@
 import { Injectable } from "@angular/core";
-import {
-  TextEditorTextModification,
-  TextEditorValue
-} from "../../text-editor.constants";
+import { TextEditorTextModification } from "../../text-editor.constants";
 
 @Injectable()
 export class InsertUtilityService {
@@ -40,6 +37,26 @@ export class InsertUtilityService {
     return {
       text: `${anchor.slice(0, start)}${text}${focus.slice(end, focus.length)}`,
       mod: mod
+    };
+  }
+
+  public getBodyHandleObject({
+    host,
+    index,
+    offset
+  }: {
+    host: Node;
+    index: number;
+    offset: number;
+  }): {
+    host: Node;
+    query: string;
+    offset: number;
+  } {
+    return {
+      host,
+      query: `span.text-editor__body[data-body_index='${index}']`,
+      offset
     };
   }
 }

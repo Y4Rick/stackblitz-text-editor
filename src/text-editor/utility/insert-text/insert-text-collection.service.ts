@@ -17,68 +17,11 @@ export class InsertTextCollectionService {
   }): TextEditorHandle {
     console.log("SelectionCollection handel");
 
-    const {
-      anchor_section,
-      anchor_section_index,
-      anchor_offset,
-      anchor_body,
-      anchor_body_index,
-      focus_section_index,
-      focus_offset,
-      focus_body_index
-    } = this.getSelectionConfig(selection);
-
-    if (
-      this.canRemoveFullSelectedSections({
-        value,
-        focus_section_index,
-        focus_body_index,
-        focus_offset
-      })
-    ) {
-      return this.removeFullSelectedSections({
-        text,
-        value,
-        anchor_section,
-        anchor_section_index,
-        anchor_body,
-        anchor_body_index,
-        anchor_offset,
-        focus_section_index
-      });
-    } else if (
-      this.canRemoveFocusBody({
-        value,
-        focus_section_index,
-        focus_body_index,
-        focus_offset
-      })
-    ) {
-      return this.removeFocusBody({
-        text,
-        value,
-        anchor_section,
-        anchor_section_index,
-        anchor_body,
-        anchor_body_index,
-        anchor_offset,
-        focus_section_index,
-        focus_body_index
-      });
-    } else {
-      return this.keppFocusBody({
-        text,
-        value,
-        anchor_section,
-        anchor_section_index,
-        anchor_body,
-        anchor_body_index,
-        anchor_offset,
-        focus_section_index,
-        focus_body_index,
-        focus_offset
-      });
-    }
+    return this.getTextEditorHandleConfig({
+      text,
+      value,
+      ...this.getSelectionConfig(selection)
+    });
   }
 
   private getSelectionConfig({
@@ -138,6 +81,96 @@ export class InsertTextCollectionService {
     };
   }
 
+  private getTextEditorHandleConfig({
+    text,
+    value,
+    anchor_section,
+    anchor_section_index,
+    anchor_offset,
+    anchor_body,
+    anchor_body_index,
+    focus_section_index,
+    focus_offset,
+    focus_body_index
+  }: {
+    text: string;
+    value: Array<TextEditorValue>;
+    anchor_section: HTMLSpanElement;
+    anchor_section_index: number;
+    anchor_offset: number;
+    anchor_body: HTMLSpanElement;
+    anchor_body_index: number;
+    focus_section_index: number;
+    focus_offset: number;
+    focus_body_index: number;
+  }): TextEditorHandle {
+    const handle = this.insertUtilityService.getBodyHandleObject({
+      host: anchor_section,
+      index: anchor_body_index,
+      offset: anchor_offset + 1
+    });
+
+    const result: TextEditorHandle = {
+      monitor: anchor_body,
+      anchor: handle,
+      focus: handle,
+      update: []
+    };
+
+    if (
+      this.canRemoveFullSelectedSections({
+        value,
+        focus_section_index,
+        focus_body_index,
+        focus_offset
+      })
+    ) {
+      result.update = this.removeFullSelectedSections({
+        text,
+        value,
+        anchor_section_index,
+        anchor_body_index,
+        anchor_offset,
+        focus_section_index
+      });
+    } else if (
+      this.canRemoveFocusBody({
+        value,
+        focus_section_index,
+        focus_body_index,
+        focus_offset
+      })
+    ) {
+      result.update = this.removeFocusBody({
+        text,
+        value,
+        anchor_section_index,
+        anchor_body_index,
+        anchor_offset,
+        focus_section_index,
+        focus_body_index
+      });
+    } else {
+      result.update = this.keppFocusBody({
+        text,
+        value,
+        anchor_section_index,
+        anchor_body_index,
+        anchor_offset,
+        focus_section_index,
+        focus_body_index,
+        focus_offset
+      });
+    }
+
+    value.splice(
+      anchor_section_index + 1,
+      focus_section_index - anchor_section_index
+    );
+
+    return result;
+  }
+
   private canRemoveFullSelectedSections({
     value,
     focus_section_index,
@@ -166,22 +199,18 @@ export class InsertTextCollectionService {
   private removeFullSelectedSections({
     text,
     value,
-    anchor_section,
     anchor_section_index,
-    anchor_body,
     anchor_body_index,
     anchor_offset,
     focus_section_index
   }: {
     text: string;
     value: TextEditorValue[];
-    anchor_section: HTMLElement;
     anchor_section_index: number;
-    anchor_body: HTMLElement;
     anchor_body_index: number;
     anchor_offset: number;
     focus_section_index: number;
-  }): TextEditorHandle {
+  }): TextEditorValue[] {
     console.log("SelectionCollection removeFullSelectedSections");
 
     const body = value[anchor_section_index].body;
@@ -199,24 +228,7 @@ export class InsertTextCollectionService {
       )
     );
 
-    this.removeValueSections(
-      value,
-      anchor_section_index + 1,
-      focus_section_index - anchor_section_index
-    );
-
-    const anchor_handle = {
-      host: anchor_section,
-      query: `span.text-editor__body[data-body_index='${anchor_body_index}']`,
-      offset: anchor_offset + 1
-    };
-
-    return {
-      monitor: anchor_body,
-      anchor: anchor_handle,
-      focus: anchor_handle,
-      update: value
-    };
+    return value;
   }
 
   private canRemoveFocusBody({
@@ -245,9 +257,7 @@ export class InsertTextCollectionService {
   private removeFocusBody({
     text,
     value,
-    anchor_section,
     anchor_section_index,
-    anchor_body,
     anchor_body_index,
     anchor_offset,
     focus_section_index,
@@ -255,14 +265,12 @@ export class InsertTextCollectionService {
   }: {
     text: string;
     value: TextEditorValue[];
-    anchor_section: HTMLElement;
     anchor_section_index: number;
-    anchor_body: HTMLElement;
     anchor_body_index: number;
     anchor_offset: number;
     focus_section_index: number;
     focus_body_index: number;
-  }): TextEditorHandle {
+  }): TextEditorValue[] {
     console.log("SelectionCollection removeFocusBody");
 
     const value_anchor_section = value[anchor_section_index];
@@ -294,32 +302,13 @@ export class InsertTextCollectionService {
         : value_focus_section.body.slice(focus_body_index + 1))
     );
 
-    this.removeValueSections(
-      value,
-      anchor_section_index + 1,
-      focus_section_index - anchor_section_index
-    );
-
-    const anchor_handle = {
-      host: anchor_section,
-      query: `span.text-editor__body[data-body_index='${anchor_body_index}']`,
-      offset: anchor_offset + 1
-    };
-
-    return {
-      monitor: anchor_body,
-      anchor: anchor_handle,
-      focus: anchor_handle,
-      update: value
-    };
+    return value;
   }
 
   private keppFocusBody({
     text,
     value,
-    anchor_section,
     anchor_section_index,
-    anchor_body,
     anchor_body_index,
     anchor_offset,
     focus_section_index,
@@ -328,15 +317,13 @@ export class InsertTextCollectionService {
   }: {
     text: string;
     value: TextEditorValue[];
-    anchor_section: HTMLElement;
     anchor_section_index: number;
-    anchor_body: HTMLElement;
     anchor_body_index: number;
     anchor_offset: number;
     focus_section_index: number;
     focus_body_index: number;
     focus_offset: number;
-  }): TextEditorHandle {
+  }): TextEditorValue[] {
     console.log("SelectionCollection keppFocusBody");
 
     const value_anchor_section = value[anchor_section_index];
@@ -377,31 +364,6 @@ export class InsertTextCollectionService {
           ])
     );
 
-    this.removeValueSections(
-      value,
-      anchor_section_index + 1,
-      focus_section_index - anchor_section_index
-    );
-
-    const anchor_handle = {
-      host: anchor_section,
-      query: `span.text-editor__body[data-body_index='${anchor_body_index}']`,
-      offset: anchor_offset + 1
-    };
-
-    return {
-      monitor: anchor_body,
-      anchor: anchor_handle,
-      focus: anchor_handle,
-      update: value
-    };
-  }
-
-  private removeValueSections(
-    value: TextEditorValue[],
-    from: number,
-    to: number
-  ): void {
-    value.splice(from, to);
+    return value;
   }
 }

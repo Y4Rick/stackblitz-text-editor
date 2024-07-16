@@ -43,16 +43,16 @@ export class InsertTextSectionService {
     focus_body_index: number;
     focus_offset: number;
   }): TextEditorHandle {
-    const anchor_handle = {
+    const handle = this.insertUtilityService.getBodyHandleObject({
       host: anchor.parentElement as Node,
-      query: `span.text-editor__body[data-body_index='${anchor_body_index}']`,
+      index: anchor_body_index,
       offset: anchor_offset + 1
-    };
+    });
 
     return {
       monitor: anchor,
-      anchor: anchor_handle,
-      focus: anchor_handle,
+      anchor: handle,
+      focus: handle,
       update: this.canRemoveFollowingBodies({
         value,
         section_index,
@@ -92,11 +92,6 @@ export class InsertTextSectionService {
     focus_body_index: number;
     focus_offset: number;
   } {
-    const section_index = this.insertUtilityService.getDataAttrIndex(
-      anchorNode!.parentElement!.parentElement as HTMLElement,
-      "section_index"
-    );
-
     const anchor_body = anchorNode!.parentElement as HTMLElement;
     const focus_body = focusNode!.parentElement as HTMLElement;
 
@@ -112,7 +107,10 @@ export class InsertTextSectionService {
     const forward = focus_body_index > anchor_body_index;
 
     return {
-      section_index,
+      section_index: this.insertUtilityService.getDataAttrIndex(
+        anchorNode!.parentElement!.parentElement as HTMLElement,
+        "section_index"
+      ),
       anchor: forward ? anchor_body : focus_body,
       anchor_body_index: forward ? anchor_body_index : focus_body_index,
       anchor_offset: forward ? anchorOffset : focusOffset,

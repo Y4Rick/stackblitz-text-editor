@@ -23,28 +23,10 @@ export class InsertTextService {
 
     console.log("InsertText handel", "value_exists: ", value_exists);
 
-    const { anchor, anchor_offset } = this.getSelectionConfig(
-      selection,
-      value_exists
-    );
-
-    const body_index = this.insertUtilityService.getDataAttrIndex(
-      anchor,
-      "body_index"
-    );
-
-    const section_index = this.insertUtilityService.getDataAttrIndex(
-      anchor.parentElement!,
-      "section_index"
-    );
-
     return this.getTextEditorHandleConfig({
       text,
       value,
-      anchor,
-      anchor_offset,
-      section_index,
-      body_index,
+      ...this.getSelectionConfig(selection, value_exists),
       value_exists
     });
   }
@@ -61,12 +43,24 @@ export class InsertTextService {
   ): {
     anchor: HTMLSpanElement;
     anchor_offset: number;
+    section_index: number;
+    body_index: number;
   } {
+    const anchor = (
+      value_exists ? selection.anchorNode?.parentElement : selection.anchorNode
+    ) as HTMLSpanElement;
+
     return {
-      anchor: (value_exists
-        ? selection.anchorNode?.parentElement
-        : selection.anchorNode) as HTMLSpanElement,
-      anchor_offset: selection.anchorOffset
+      anchor,
+      anchor_offset: selection.anchorOffset,
+      section_index: this.insertUtilityService.getDataAttrIndex(
+        anchor.parentElement!,
+        "section_index"
+      ),
+      body_index: this.insertUtilityService.getDataAttrIndex(
+        anchor,
+        "body_index"
+      )
     };
   }
 
@@ -87,16 +81,16 @@ export class InsertTextService {
     section_index: number;
     value_exists: boolean;
   }): TextEditorHandle {
-    const anchor_handle = {
+    const handle = this.insertUtilityService.getBodyHandleObject({
       host: anchor.parentElement as Node,
-      query: `span.text-editor__body[data-body_index='${body_index}']`,
+      index: body_index,
       offset: value_exists ? anchor_offset + 1 : 1
-    };
+    });
 
     return {
       monitor: anchor,
-      anchor: anchor_handle,
-      focus: anchor_handle,
+      anchor: handle,
+      focus: handle,
       update: value_exists
         ? this.updateBodyValue({
             text,
