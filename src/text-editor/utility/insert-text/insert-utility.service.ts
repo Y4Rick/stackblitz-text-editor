@@ -3,7 +3,7 @@ import { TextEditorTextModification } from "../../text-editor.constants";
 
 @Injectable()
 export class InsertUtilityService {
-  public getDataAttrIndex(element: HTMLElement, attr: string): number {
+  public getDataAttrIndex(element: HTMLSpanElement, attr: string): number {
     return Number(element.dataset[attr]);
   }
 
@@ -45,11 +45,11 @@ export class InsertUtilityService {
     index,
     offset
   }: {
-    host: Node;
+    host: HTMLSpanElement;
     index: number;
     offset: number;
   }): {
-    host: Node;
+    host: HTMLSpanElement;
     query: string;
     offset: number;
   } {

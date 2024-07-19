@@ -5,12 +5,14 @@ import {
   TextEditorSectionType
 } from "../../text-editor.constants";
 import { InsertUtilityService } from "./insert-utility.service";
+import { UtilityService } from "../utility.service";
 
 @Injectable()
 export class InsertTextService {
   private insertUtilityService = inject(InsertUtilityService);
+  private utilityService = inject(UtilityService);
 
-  public handelInsert({
+  public handleInsert({
     text,
     value,
     selection
@@ -19,9 +21,9 @@ export class InsertTextService {
     value: Array<TextEditorValue>;
     selection: Selection;
   }): TextEditorHandle {
-    const value_exists = this.isValueExists(value);
+    const value_exists = this.utilityService.isEditorValueExists(value);
 
-    console.log("InsertText handel", "value_exists: ", value_exists);
+    console.log("InsertText handle", "value_exists: ", value_exists);
 
     return this.getTextEditorHandleConfig({
       text,
@@ -29,12 +31,6 @@ export class InsertTextService {
       ...this.getSelectionConfig(selection, value_exists),
       value_exists
     });
-  }
-
-  private isValueExists(value: Array<TextEditorValue>): boolean {
-    return value.some((section) =>
-      section.body.some((body) => body.text.length)
-    );
   }
 
   private getSelectionConfig(
@@ -82,7 +78,7 @@ export class InsertTextService {
     value_exists: boolean;
   }): TextEditorHandle {
     const handle = this.insertUtilityService.getBodyHandleObject({
-      host: anchor.parentElement as Node,
+      host: anchor.parentElement as HTMLSpanElement,
       index: body_index,
       offset: value_exists ? anchor_offset + 1 : 1
     });
@@ -99,7 +95,7 @@ export class InsertTextService {
             section_index,
             offset: anchor_offset
           })
-        : this.getBodyValue(text)
+        : [this.utilityService.createSectionParagraphBody(text)]
     };
   }
 
@@ -132,19 +128,5 @@ export class InsertTextService {
     );
 
     return value;
-  }
-
-  private getBodyValue(text: string): Array<TextEditorValue> {
-    return [
-      {
-        section: TextEditorSectionType.PPARAGRAPH,
-        body: [
-          {
-            text: (text ?? "").toString(),
-            mod: []
-          }
-        ]
-      }
-    ];
   }
 }

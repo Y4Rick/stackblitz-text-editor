@@ -6,7 +6,7 @@ import { InsertUtilityService } from "./insert-utility.service";
 export class InsertTextCollectionService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert({
+  public handleInsert({
     text,
     value,
     selection
@@ -15,7 +15,7 @@ export class InsertTextCollectionService {
     value: Array<TextEditorValue>;
     selection: Selection;
   }): TextEditorHandle {
-    console.log("SelectionCollection handel");
+    console.log("SelectionCollection handle");
 
     return this.getTextEditorHandleConfig({
       text,
@@ -40,9 +40,9 @@ export class InsertTextCollectionService {
     focus_body_index: number;
   } {
     const anchor_section = anchorNode!.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
     const focus_section = focusNode!.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
 
     const anchor_section_index = this.insertUtilityService.getDataAttrIndex(
       anchor_section,
@@ -53,8 +53,8 @@ export class InsertTextCollectionService {
       "section_index"
     );
 
-    const anchor_body = anchorNode!.parentElement as HTMLElement;
-    const focus_body = focusNode!.parentElement as HTMLElement;
+    const anchor_body = anchorNode!.parentElement as HTMLSpanElement;
+    const focus_body = focusNode!.parentElement as HTMLSpanElement;
 
     const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
       anchor_body,

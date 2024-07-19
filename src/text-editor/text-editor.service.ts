@@ -11,12 +11,14 @@ import { InsertTextSectionService } from "./utility/insert-text/insert-text-sect
 import { InsertTextCollectionService } from "./utility/insert-text/insert-text-collection.service";
 import { InsertTextService } from "./utility/insert-text/insert-text.service";
 import { InsertSectionService } from "./utility/insert-section/insert-section.service";
+import { UtilityService } from "./utility/utility.service";
 
 @Injectable()
 export class TextEditorService {
   private readonly mutation_observers: Map<string, MutationObserver> =
     new Map();
 
+  private utilityService = inject(UtilityService);
   private insertTextService = inject(InsertTextService);
   private insertTextBodyService = inject(InsertTextBodyService);
   private insertTextSectionService = inject(InsertTextSectionService);
@@ -64,24 +66,10 @@ export class TextEditorService {
     return is_bodies.every((item) => item);
   }
 
-  public getDefaultValue(value: any): Array<TextEditorValue> {
-    return [
-      {
-        section: TextEditorSectionType.PPARAGRAPH,
-        body: [
-          {
-            text: (value ?? "").toString(),
-            mod: []
-          }
-        ]
-      }
-    ];
-  }
-
-  public getChangeValue(
+  public getControlValue(
     value: Array<TextEditorValue>
   ): Array<TextEditorValue> | "" {
-    return value[0].body[0].text.length ? value : "";
+    return this.utilityService.isEditorValueExists(value) ? value : "";
   }
 
   public isEditorAvailable(
@@ -119,7 +107,7 @@ export class TextEditorService {
         (item) =>
           item.localName === "span" &&
           item.classList.contains("text-editor__body") &&
-          (item as HTMLElement).dataset["body_index"] &&
+          (item as HTMLSpanElement).dataset["body_index"] &&
           !item.children.length
       )
     );
@@ -141,12 +129,45 @@ export class TextEditorService {
     ).every((section, section_index) =>
       Array.from(section.children).every(
         (item, body_index) =>
-          (item as HTMLElement).innerText ===
+          (item as HTMLSpanElement).innerText ===
           value[section_index].body[body_index].text
       )
     );
 
     return body_available;
+  }
+
+  public isHandleAvailable(value?: TextEditorHandle): boolean {
+    return (
+      !!value?.monitor &&
+      !!value?.anchor &&
+      !!value?.focus &&
+      !!value?.update?.length
+    );
+  }
+
+  public manageFocusEditor(
+    target: HTMLSpanElement,
+    value: Array<TextEditorValue>
+  ): void {
+    if (!this.utilityService.isEditorValueExists(value)) {
+      console.log("manageFocusEditor");
+
+      const body_element = target.querySelector(
+        "span.text-editor__body"
+      ) as HTMLSpanElement;
+
+      console.log("body_element childNodes", body_element?.childNodes.item(0));
+
+      if (!body_element?.childNodes?.item(0)) {
+        this.utilityService.setEmptyTextNode(body_element);
+
+        const selection = this.utilityService.getDOCSelection();
+
+        selection.removeAllRanges();
+        selection.collapse(body_element, 0);
+      }
+    }
   }
 
   public handleInputEvent({
@@ -160,22 +181,29 @@ export class TextEditorService {
   }): TextEditorHandle | undefined {
     console.log("handleInputEvent", event, "value", value);
 
+    const selection = this.utilityService.getDOCSelection();
+    const clone = this.cloneValue(value);
+
     switch (event.inputType) {
       case TextEditorInputEventType.INSERT_TEXT:
-        const insert_data = {
+        const handle = {
           text: event.data!,
-          value: this.cloneValue(value),
-          selection: this.getDOCSelection()
+          value: clone,
+          selection
         };
 
-        return this.getDOCSelection().isCollapsed
-          ? this.insertTextService.handelInsert(insert_data)
-          : this.handleSelectiveInsertTextEvent(insert_data);
+        return selection.isCollapsed
+          ? this.insertTextService.handleInsert(handle)
+          : this.handleSelectiveInsertTextEvent(handle);
 
       case TextEditorInputEventType.INSERT_PARAGRAPH:
       case TextEditorInputEventType.INSERT_LINEB_REAK:
-        return this.getDOCSelection().isCollapsed
-          ? this.insertSectionService.handelInsert()
+        return selection.isCollapsed
+          ? this.insertSectionService.handleInsert({
+              value: clone,
+              editor,
+              selection
+            })
           : this.handleSelectiveInsertSectionEvent();
 
       default:
@@ -183,23 +211,19 @@ export class TextEditorService {
     }
   }
 
-  public isHandleAvailable(value: TextEditorHandle): boolean {
-    return value?.monitor && value?.anchor && value?.focus && !!value?.update;
-  }
-
   public watchMutationObserver({
     monitor,
     anchor,
     focus
   }: {
-    monitor: Node;
+    monitor: HTMLSpanElement;
     anchor: {
-      host: Node;
+      host: HTMLSpanElement;
       query: string;
       offset: number;
     };
     focus: {
-      host: Node;
+      host: HTMLSpanElement;
       query: string;
       offset: number;
     };
@@ -219,18 +243,26 @@ export class TextEditorService {
 
         this.removeMutationObserver(observer_id);
 
-        const anchor_collapse = (anchor.host as HTMLElement).querySelector(
+        const anchor_collapse = anchor.host.querySelector(
           anchor.query
-        );
-        const focus_collapse = (focus.host as HTMLElement).querySelector(
+        ) as HTMLSpanElement;
+        const focus_collapse = focus.host.querySelector(
           focus.query
-        );
+        ) as HTMLSpanElement;
 
         console.log("anchor_collapse", anchor_collapse);
         console.log("focus_collapse", focus_collapse);
 
         if (anchor_collapse && focus_collapse) {
-          const selection = this.getDOCSelection();
+          const selection = this.utilityService.getDOCSelection();
+
+          if (!anchor_collapse.childNodes.item(0)) {
+            this.utilityService.setEmptyTextNode(anchor_collapse);
+          }
+
+          if (!focus_collapse.childNodes.item(0)) {
+            this.utilityService.setEmptyTextNode(focus_collapse);
+          }
 
           selection.removeAllRanges();
           selection.setBaseAndExtent(
@@ -261,7 +293,7 @@ export class TextEditorService {
     console.log("clearMutationObserver", this.mutation_observers);
   }
 
-  public cloneValue(value: Array<TextEditorValue>): Array<TextEditorValue> {
+  private cloneValue(value: Array<TextEditorValue>): Array<TextEditorValue> {
     return JSON.parse(JSON.stringify(value));
   }
 
@@ -272,66 +304,42 @@ export class TextEditorService {
   }): TextEditorHandle | undefined {
     if (this.isSelectionBody(config.selection)) {
       // same body
-      return this.insertTextBodyService.handelInsert(config);
+      return this.insertTextBodyService.handleInsert(config);
     } else if (this.isSelectionSection(config.selection)) {
       // same section
-      return this.insertTextSectionService.handelInsert(config);
+      return this.insertTextSectionService.handleInsert(config);
     } else if (this.isSelectionCollection(config.selection)) {
       // full collection
-      return this.insertTextCollectionService.handelInsert(config);
+      return this.insertTextCollectionService.handleInsert(config);
     } else return;
   }
 
   private handleSelectiveInsertSectionEvent(): TextEditorHandle | undefined {
-    // text: string,
-    // value: Array<TextEditorValue>,
-    // selection: Selection
-    // if (this.isSelectionBody(selection)) {
-    //   // same body
-    //   return this.insertTextBodyService.handelInsert(text, value, selection);
-    // } else if (this.isSelectionSection(selection)) {
-    //   // same section
-    //   return this.insertTextSectionService.handelInsert(text, value, selection);
-    // } else if (this.isSelectionCollection(selection)) {
-    //   // full collection
-    //   return this.insertTextCollectionService.handelInsert(
-    //     text,
-    //     value,
-    //     selection
-    //   );
-    // } else {
-    //   return;
-    // }
-
     return {} as any;
   }
 
   private isSelectionCollection({ anchorNode, focusNode }: Selection): boolean {
     const anchor_saction = anchorNode?.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
 
     const focus_saction = focusNode?.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
 
     return !anchor_saction!.isSameNode(focus_saction);
   }
 
   private isSelectionSection({ anchorNode, focusNode }: Selection): boolean {
     const anchor_saction = anchorNode?.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
 
     const focus_saction = focusNode?.parentElement!
-      .parentElement as HTMLElement;
+      .parentElement as HTMLSpanElement;
 
     return anchor_saction!.isSameNode(focus_saction);
   }
 
   private isSelectionBody({ anchorNode, focusNode }: Selection): boolean {
     return anchorNode!.isSameNode(focusNode);
-  }
-
-  private getDOCSelection(): Selection {
-    return document.getSelection()!;
   }
 
   private pushMutationObserver(observer: MutationObserver, id: string): void {

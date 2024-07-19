@@ -48,12 +48,21 @@ app-text-editor:host {
   }
 
   &__section {
+    padding: 0 0 0 10px;
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    background-size: 5px 18px;
+
     &:not(:last-child) {
       margin: 0 0 10px;
     }
 
     &:last-child {
       flex-grow: 1;
+    }
+
+    &--paragraph {
+      background-image: url(./icons/p.svg);
     }
   }
 

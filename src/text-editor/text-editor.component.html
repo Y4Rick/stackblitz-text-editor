@@ -5,7 +5,14 @@
     [attr.contenteditable]="!disabled"
   >
     @for (section of value; track $index; let i = $index) {
-    <span class="text-editor__section" [attr.data-section_index]="i">
+    <span
+      class="text-editor__section"
+      [ngClass]="{
+        'text-editor__section--paragraph':
+          section.section === section_type.PPARAGRAPH
+      }"
+      [attr.data-section_index]="i"
+    >
       @for (body of section.body; track $index; let i = $index) {
       <span
         class="text-editor__body"
@@ -14,7 +21,7 @@
           'text-editor__body--bold': body.mod.includes(text_mod.BOLD),
           'text-editor__body--italic': body.mod.includes(text_mod.ITALIC)
         }"
-        [innerText]="body.text"
+        [textContent]="body.text"
       >
       </span>
       }

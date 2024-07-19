@@ -10,18 +10,15 @@ import {
   inject,
   signal
 } from "@angular/core";
-import {
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  ReactiveFormsModule
-} from "@angular/forms";
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { Subscription, filter, fromEvent, map, tap } from "rxjs";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { TextEditorService } from "./text-editor.service";
 import {
   TextEditorTextModification,
   TextEditorValue,
-  TextEditorHandle
+  TextEditorHandle,
+  TextEditorSectionType
 } from "./text-editor.constants";
 import { InsertUtilityService } from "./utility/insert-text/insert-utility.service";
 import { InsertTextService } from "./utility/insert-text/insert-text.service";
@@ -29,10 +26,11 @@ import { InsertTextBodyService } from "./utility/insert-text/insert-text-body.se
 import { InsertTextSectionService } from "./utility/insert-text/insert-text-section.service";
 import { InsertTextCollectionService } from "./utility/insert-text/insert-text-collection.service";
 import { InsertSectionService } from "./utility/insert-section/insert-section.service";
+import { UtilityService } from "./utility/utility.service";
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule],
   selector: "app-text-editor",
   templateUrl: "text-editor.component.html",
   styleUrl: "text-editor.component.scss",
@@ -42,14 +40,13 @@ import { InsertSectionService } from "./utility/insert-section/insert-section.se
       multi: true,
       useExisting: TextEditorComponent
     },
+    UtilityService,
     TextEditorService,
-
     InsertUtilityService,
     InsertTextService,
     InsertTextBodyService,
     InsertTextSectionService,
     InsertTextCollectionService,
-
     InsertSectionService
   ]
 })
@@ -59,6 +56,7 @@ export class TextEditorComponent
   @HostBinding("class") public readonly host_selector = "text-editor";
 
   public readonly text_mod = TextEditorTextModification;
+  public readonly section_type = TextEditorSectionType;
 
   @HostBinding("class.text-editor--focus") public get focus(): boolean {
     return this._focus();
@@ -77,6 +75,7 @@ export class TextEditorComponent
   private readonly text_editor_element!: ElementRef<HTMLSpanElement>;
 
   private textEditorService = inject(TextEditorService);
+  private utilityService = inject(UtilityService);
 
   private focus$!: Subscription;
   private blur$!: Subscription;
@@ -97,8 +96,19 @@ export class TextEditorComponent
 
   public ngOnInit(): void {
     this.focus$ = fromEvent(this.editor, "focus")
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => this._focus.set(true));
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map(
+          (event: Event) => event as FocusEvent & { target: HTMLSpanElement }
+        ),
+        tap((event: FocusEvent & { target: HTMLSpanElement }) =>
+          this.textEditorService.manageFocusEditor(event.target, this.value)
+        )
+      )
+      .subscribe((event: FocusEvent & { target: HTMLSpanElement }) => {
+        console.log(event);
+        this._focus.set(true);
+      });
 
     this.blur$ = fromEvent(this.editor, "blur")
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -125,9 +135,10 @@ export class TextEditorComponent
               editor: this.editor
             })!
         ),
-        filter((result: TextEditorHandle) =>
+        filter((result: TextEditorHandle | undefined) =>
           this.textEditorService.isHandleAvailable(result)
-        )
+        ),
+        map((value: TextEditorHandle | undefined) => value as TextEditorHandle)
       )
 
       .subscribe(({ monitor, anchor, focus, update }: TextEditorHandle) => {
@@ -141,7 +152,7 @@ export class TextEditorComponent
 
         this.value = update;
 
-        this.onChange(this.textEditorService.getChangeValue(this.value));
+        this.onChange(this.textEditorService.getControlValue(this.value));
 
         console.log("after handle_value", this.value);
       });
@@ -161,9 +172,9 @@ export class TextEditorComponent
     if (this.textEditorService.isValueValid(value)) {
       this.value = value;
     } else {
-      this.value = this.textEditorService.getDefaultValue(value);
+      this.value = [this.utilityService.createSectionParagraphBody(value)];
 
-      this.onChange(this.textEditorService.getChangeValue(this.value));
+      this.onChange(this.textEditorService.getControlValue(this.value));
     }
 
     console.log("out writeValue", this.value);

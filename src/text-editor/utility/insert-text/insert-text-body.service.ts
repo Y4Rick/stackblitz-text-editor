@@ -6,7 +6,7 @@ import { InsertUtilityService } from "./insert-utility.service";
 export class InsertTextBodyService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert({
+  public handleInsert({
     text,
     value,
     selection
@@ -15,7 +15,7 @@ export class InsertTextBodyService {
     value: Array<TextEditorValue>;
     selection: Selection;
   }): TextEditorHandle {
-    console.log("SelectionBody handel");
+    console.log("SelectionBody handle");
 
     return this.getTextEditorHandleConfig({
       text,
@@ -74,7 +74,7 @@ export class InsertTextBodyService {
     section_index: number;
   }): TextEditorHandle {
     const handle = this.insertUtilityService.getBodyHandleObject({
-      host: anchor.parentElement as Node,
+      host: anchor.parentElement as HTMLSpanElement,
       index: body_index,
       offset: anchor_offset + 1
     });

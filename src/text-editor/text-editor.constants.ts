@@ -60,14 +60,14 @@ export interface TextEditorValue {
 }
 
 export interface TextEditorHandle {
-  monitor: Node;
+  monitor: HTMLSpanElement;
   anchor: {
-    host: Node;
+    host: HTMLSpanElement;
     query: string;
     offset: number;
   };
   focus: {
-    host: Node;
+    host: HTMLSpanElement;
     query: string;
     offset: number;
   };

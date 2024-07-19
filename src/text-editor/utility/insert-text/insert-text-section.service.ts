@@ -6,7 +6,7 @@ import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
 export class InsertTextSectionService {
   private insertUtilityService = inject(InsertUtilityService);
 
-  public handelInsert({
+  public handleInsert({
     text,
     value,
     selection
@@ -15,7 +15,7 @@ export class InsertTextSectionService {
     value: Array<TextEditorValue>;
     selection: Selection;
   }): TextEditorHandle {
-    console.log("SelectionSection handel");
+    console.log("SelectionSection handle");
 
     return this.getTextEditorHandleConfig({
       text,
@@ -44,7 +44,7 @@ export class InsertTextSectionService {
     focus_offset: number;
   }): TextEditorHandle {
     const handle = this.insertUtilityService.getBodyHandleObject({
-      host: anchor.parentElement as Node,
+      host: anchor.parentElement as HTMLSpanElement,
       index: anchor_body_index,
       offset: anchor_offset + 1
     });
@@ -92,8 +92,8 @@ export class InsertTextSectionService {
     focus_body_index: number;
     focus_offset: number;
   } {
-    const anchor_body = anchorNode!.parentElement as HTMLElement;
-    const focus_body = focusNode!.parentElement as HTMLElement;
+    const anchor_body = anchorNode!.parentElement as HTMLSpanElement;
+    const focus_body = focusNode!.parentElement as HTMLSpanElement;
 
     const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
       anchor_body,
@@ -108,7 +108,7 @@ export class InsertTextSectionService {
 
     return {
       section_index: this.insertUtilityService.getDataAttrIndex(
-        anchorNode!.parentElement!.parentElement as HTMLElement,
+        anchorNode!.parentElement!.parentElement as HTMLSpanElement,
         "section_index"
       ),
       anchor: forward ? anchor_body : focus_body,
