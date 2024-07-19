@@ -1,6 +1,6 @@
 export enum TextEditorSectionType {
   // TITLE = 'title',
-  PPARAGRAPH = "paragraph"
+  PARAGRAPH = "paragraph"
 
   // ORDER = 'order',
   // BULLET = 'bullet',

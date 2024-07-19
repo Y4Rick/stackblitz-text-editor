@@ -41,7 +41,7 @@ export class TextEditorService {
 
     const is_bodies: boolean[] = value?.reduce(
       (acc: boolean[], item: any | TextEditorValue) => {
-        if (item.section === TextEditorSectionType.PPARAGRAPH) {
+        if (item.section === TextEditorSectionType.PARAGRAPH) {
           acc.push(
             Array.isArray(item?.body) &&
               !!item.body.length &&

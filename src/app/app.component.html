@@ -1,0 +1,18 @@
+<div class="app-root__box">
+  <div>
+    <h1>Set value</h1>
+    <button (click)="setValue(undefined)">Set undefine</button>
+    <button (click)="setValue('My string')">Set string</button>
+    <button (click)="setValue({ text: 'Zone text' })">
+      Set incorrect zone
+    </button>
+    <button (click)="setSection()">Set section</button>
+    <button (click)="setFewSections()">Set few sections</button>
+    <button (click)="setFullCollection()">Set full collection</button>
+    <div>
+      <input type="text" #inputText />
+      <button (click)="setValue(inputText.value)">Set input value</button>
+    </div>
+  </div>
+  <app-text-editor class="app-root__editor" [formControl]="editor_control" />
+</div>

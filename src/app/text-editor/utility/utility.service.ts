@@ -11,7 +11,7 @@ export class UtilityService {
 
   public createSectionParagraphBody(text?: string): TextEditorValue {
     return {
-      section: TextEditorSectionType.PPARAGRAPH,
+      section: TextEditorSectionType.PARAGRAPH,
       body: [
         {
           text: (text ?? "").toString(),
@@ -24,7 +24,7 @@ export class UtilityService {
   public isEditorValueExists(value: Array<TextEditorValue>): boolean {
     return value.some(
       (section) =>
-        section.section === TextEditorSectionType.PPARAGRAPH &&
+        section.section === TextEditorSectionType.PARAGRAPH &&
         section.body.some((body) => body.text.length)
     );
   }
