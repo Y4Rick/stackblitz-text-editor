@@ -143,7 +143,7 @@ export class TextEditorComponent
 
       .subscribe(({ monitor, anchor, focus, update }: TextEditorHandle) => {
         console.log("handleInputEvent result", monitor, anchor, focus, update);
-        // monitor: Node, host: HTMLElement, query: string, collapse_index: number
+
         this.textEditorService.watchMutationObserver({
           monitor,
           anchor,

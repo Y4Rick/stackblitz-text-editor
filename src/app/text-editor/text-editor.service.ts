@@ -197,7 +197,7 @@ export class TextEditorService {
           : this.handleSelectiveInsertTextEvent(handle);
 
       case TextEditorInputEventType.INSERT_PARAGRAPH:
-      case TextEditorInputEventType.INSERT_LINEB_REAK:
+      case TextEditorInputEventType.INSERT_LINE_BREAK:
         return selection.isCollapsed
           ? this.insertSectionService.handleInsert({
               value: clone,
@@ -319,23 +319,23 @@ export class TextEditorService {
   }
 
   private isSelectionCollection({ anchorNode, focusNode }: Selection): boolean {
-    const anchor_saction = anchorNode?.parentElement!
+    const anchor_section = anchorNode?.parentElement!
       .parentElement as HTMLSpanElement;
 
-    const focus_saction = focusNode?.parentElement!
+    const focus_section = focusNode?.parentElement!
       .parentElement as HTMLSpanElement;
 
-    return !anchor_saction!.isSameNode(focus_saction);
+    return !anchor_section!.isSameNode(focus_section);
   }
 
   private isSelectionSection({ anchorNode, focusNode }: Selection): boolean {
-    const anchor_saction = anchorNode?.parentElement!
+    const anchor_section = anchorNode?.parentElement!
       .parentElement as HTMLSpanElement;
 
-    const focus_saction = focusNode?.parentElement!
+    const focus_section = focusNode?.parentElement!
       .parentElement as HTMLSpanElement;
 
-    return anchor_saction!.isSameNode(focus_saction);
+    return anchor_section!.isSameNode(focus_section);
   }
 
   private isSelectionBody({ anchorNode, focusNode }: Selection): boolean {

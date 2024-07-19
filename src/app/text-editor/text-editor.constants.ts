@@ -48,7 +48,7 @@ export enum TextEditorTextModification {
 export enum TextEditorInputEventType {
   INSERT_TEXT = "insertText",
   INSERT_PARAGRAPH = "insertParagraph",
-  INSERT_LINEB_REAK = "insertLineBreak"
+  INSERT_LINE_BREAK = "insertLineBreak"
 }
 
 export interface TextEditorValue {

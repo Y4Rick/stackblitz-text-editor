@@ -4,19 +4,19 @@
     class="text-editor__selection"
     [attr.contenteditable]="!disabled"
   >
-    @for (section of value; track $index; let i = $index) {
+    @for (section of value; track $index; let section_index = $index) {
     <span
       class="text-editor__section"
       [ngClass]="{
         'text-editor__section--paragraph':
           section.section === section_type.PARAGRAPH
       }"
-      [attr.data-section_index]="i"
+      [attr.data-section_index]="section_index"
     >
-      @for (body of section.body; track $index; let i = $index) {
+      @for (body of section.body; track $index; let body_index = $index) {
       <span
         class="text-editor__body"
-        [attr.data-body_index]="i"
+        [attr.data-body_index]="body_index"
         [ngClass]="{
           'text-editor__body--bold': body.mod.includes(text_mod.BOLD),
           'text-editor__body--italic': body.mod.includes(text_mod.ITALIC)

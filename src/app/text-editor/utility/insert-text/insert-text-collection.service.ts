@@ -151,7 +151,7 @@ export class InsertTextCollectionService {
         focus_body_index
       });
     } else {
-      result.update = this.keppFocusBody({
+      result.update = this.keepFocusBody({
         text,
         value,
         anchor_section_index,
@@ -305,7 +305,7 @@ export class InsertTextCollectionService {
     return value;
   }
 
-  private keppFocusBody({
+  private keepFocusBody({
     text,
     value,
     anchor_section_index,
@@ -324,7 +324,7 @@ export class InsertTextCollectionService {
     focus_body_index: number;
     focus_offset: number;
   }): TextEditorValue[] {
-    console.log("SelectionCollection keppFocusBody");
+    console.log("SelectionCollection keepFocusBody");
 
     const value_anchor_section = value[anchor_section_index];
     const value_anchor_section_body =

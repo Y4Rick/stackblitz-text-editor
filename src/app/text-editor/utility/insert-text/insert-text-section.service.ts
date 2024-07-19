@@ -67,7 +67,7 @@ export class InsertTextSectionService {
             focus_body_index,
             anchor_offset
           })
-        : this.keppFollowingBodies({
+        : this.keepFollowingBodies({
             text,
             value,
             section_index,
@@ -183,7 +183,7 @@ export class InsertTextSectionService {
     return value;
   }
 
-  private keppFollowingBodies({
+  private keepFollowingBodies({
     text,
     value,
     section_index,
@@ -200,7 +200,7 @@ export class InsertTextSectionService {
     anchor_offset: number;
     focus_offset: number;
   }): Array<TextEditorValue> {
-    console.log("SelectionSection keppFollowingBodies");
+    console.log("SelectionSection keepFollowingBodies");
 
     const value_anchor_body = value[section_index].body[anchor_body_index];
     const value_focus_body = value[section_index].body[focus_body_index];
