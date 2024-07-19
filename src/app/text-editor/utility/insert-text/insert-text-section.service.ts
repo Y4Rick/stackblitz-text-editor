@@ -1,10 +1,12 @@
 import { Injectable, inject } from "@angular/core";
-import { InsertUtilityService } from "./insert-utility.service";
+import { InsertTextUtilityService } from "./insert-text-utility.service";
 import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
+import { UtilityService } from "../utility.service";
 
 @Injectable()
 export class InsertTextSectionService {
-  private insertUtilityService = inject(InsertUtilityService);
+  private insertTextUtilityService = inject(InsertTextUtilityService);
+  private utilityService = inject(UtilityService);
 
   public handleInsert({
     text,
@@ -43,7 +45,7 @@ export class InsertTextSectionService {
     focus_body_index: number;
     focus_offset: number;
   }): TextEditorHandle {
-    const handle = this.insertUtilityService.getBodyHandleObject({
+    const handle = this.insertTextUtilityService.getBodyHandleObject({
       host: anchor.parentElement as HTMLSpanElement,
       index: anchor_body_index,
       offset: anchor_offset + 1
@@ -95,11 +97,11 @@ export class InsertTextSectionService {
     const anchor_body = anchorNode!.parentElement as HTMLSpanElement;
     const focus_body = focusNode!.parentElement as HTMLSpanElement;
 
-    const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
+    const anchor_body_index = this.utilityService.getDataAttrIndex(
       anchor_body,
       "body_index"
     );
-    const focus_body_index = this.insertUtilityService.getDataAttrIndex(
+    const focus_body_index = this.utilityService.getDataAttrIndex(
       focus_body,
       "body_index"
     );
@@ -107,7 +109,7 @@ export class InsertTextSectionService {
     const forward = focus_body_index > anchor_body_index;
 
     return {
-      section_index: this.insertUtilityService.getDataAttrIndex(
+      section_index: this.utilityService.getDataAttrIndex(
         anchorNode!.parentElement!.parentElement as HTMLSpanElement,
         "section_index"
       ),
@@ -160,7 +162,7 @@ export class InsertTextSectionService {
     const value_anchor_body = value[section_index].body[anchor_body_index];
     const value_next_body = value[section_index].body[focus_body_index + 1];
 
-    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+    const can_concat_bodies = this.insertTextUtilityService.canConcatBodies(
       value_anchor_body?.mod,
       value_next_body?.mod
     );
@@ -170,7 +172,7 @@ export class InsertTextSectionService {
       can_concat_bodies
         ? focus_body_index + 1 - anchor_body_index + 1
         : focus_body_index - anchor_body_index + 1,
-      this.insertUtilityService.createSectionBody(
+      this.insertTextUtilityService.createSectionBody(
         value_anchor_body.text,
         can_concat_bodies ? value_next_body.text : "",
         text,
@@ -205,7 +207,7 @@ export class InsertTextSectionService {
     const value_anchor_body = value[section_index].body[anchor_body_index];
     const value_focus_body = value[section_index].body[focus_body_index];
 
-    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+    const can_concat_bodies = this.insertTextUtilityService.canConcatBodies(
       value_anchor_body?.mod,
       value_focus_body?.mod
     );
@@ -215,7 +217,7 @@ export class InsertTextSectionService {
       focus_body_index - anchor_body_index + 1,
       ...(can_concat_bodies
         ? [
-            this.insertUtilityService.createSectionBody(
+            this.insertTextUtilityService.createSectionBody(
               value_anchor_body.text,
               value_focus_body.text,
               text,
@@ -225,7 +227,7 @@ export class InsertTextSectionService {
             )
           ]
         : [
-            this.insertUtilityService.createSectionBody(
+            this.insertTextUtilityService.createSectionBody(
               value_anchor_body.text,
               "",
               text,
@@ -233,7 +235,7 @@ export class InsertTextSectionService {
               0,
               value_anchor_body.mod
             ),
-            this.insertUtilityService.createSectionBody(
+            this.insertTextUtilityService.createSectionBody(
               "",
               value_focus_body.text,
               "",

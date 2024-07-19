@@ -36,4 +36,8 @@ export class UtilityService {
   public setEmptyTextNode(el: HTMLSpanElement): void {
     el.appendChild(this.document.createTextNode(""));
   }
+
+  public getDataAttrIndex(element: HTMLSpanElement, attr: string): number {
+    return Number(element.dataset[attr]);
+  }
 }

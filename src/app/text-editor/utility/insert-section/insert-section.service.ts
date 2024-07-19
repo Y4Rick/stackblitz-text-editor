@@ -1,11 +1,9 @@
 import { Injectable, inject } from "@angular/core";
 import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
-import { InsertUtilityService } from "../insert-text/insert-utility.service";
 import { UtilityService } from "../utility.service";
 
 @Injectable()
 export class InsertSectionService {
-  private insertUtilityService = inject(InsertUtilityService);
   private utilityService = inject(UtilityService);
 
   public handleInsert({
@@ -69,7 +67,7 @@ export class InsertSectionService {
     //   //   can_concat_bodies
     //   //     ? focus_body_index + 1 - anchor_body_index + 1
     //   //     : focus_body_index - anchor_body_index + 1,
-    //   //   this.insertUtilityService.createSectionBody(
+    //   //   this.insertTextUtilityService.createSectionBody(
     //   //     value_anchor_body.text,
     //   //     can_concat_bodies ? value_next_body.text : "",
     //   //     text,
@@ -99,11 +97,11 @@ export class InsertSectionService {
     // const anchor_body = anchorNode!.parentElement as HTMLElement;
     // // const focus_body = focusNode!.parentElement as HTMLElement;
 
-    // const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
+    // const anchor_body_index = this.insertTextUtilityService.getDataAttrIndex(
     //   anchor_body,
     //   "body_index"
     // );
-    // const focus_body_index = this.insertUtilityService.getDataAttrIndex(
+    // const focus_body_index = this.insertTextUtilityService.getDataAttrIndex(
     //   focus_body,
     //   "body_index"
     // );
@@ -111,12 +109,12 @@ export class InsertSectionService {
     // const forward = focus_body_index > anchor_body_index;
 
     return {
-      section_index: this.insertUtilityService.getDataAttrIndex(
+      section_index: this.utilityService.getDataAttrIndex(
         anchorNode!.parentElement!.parentElement as HTMLSpanElement,
         "section_index"
       ),
       // anchor: forward ? anchor_body : focus_body,
-      anchor_body_index: this.insertUtilityService.getDataAttrIndex(
+      anchor_body_index: this.utilityService.getDataAttrIndex(
         anchorNode!.parentElement!,
         "body_index"
       ),

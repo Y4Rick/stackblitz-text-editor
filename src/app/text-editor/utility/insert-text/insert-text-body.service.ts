@@ -1,10 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
-import { InsertUtilityService } from "./insert-utility.service";
+import { InsertTextUtilityService } from "./insert-text-utility.service";
+import { UtilityService } from "../utility.service";
 
 @Injectable()
 export class InsertTextBodyService {
-  private insertUtilityService = inject(InsertUtilityService);
+  private insertTextUtilityService = inject(InsertTextUtilityService);
+  private utilityService = inject(UtilityService);
 
   public handleInsert({
     text,
@@ -45,14 +47,11 @@ export class InsertTextBodyService {
       anchor,
       anchor_offset: forward ? anchorOffset : focusOffset,
       focus_offset: forward ? focusOffset : anchorOffset,
-      section_index: this.insertUtilityService.getDataAttrIndex(
+      section_index: this.utilityService.getDataAttrIndex(
         anchor.parentElement!,
         "section_index"
       ),
-      body_index: this.insertUtilityService.getDataAttrIndex(
-        anchor,
-        "body_index"
-      )
+      body_index: this.utilityService.getDataAttrIndex(anchor, "body_index")
     };
   }
 
@@ -73,7 +72,7 @@ export class InsertTextBodyService {
     body_index: number;
     section_index: number;
   }): TextEditorHandle {
-    const handle = this.insertUtilityService.getBodyHandleObject({
+    const handle = this.insertTextUtilityService.getBodyHandleObject({
       host: anchor.parentElement as HTMLSpanElement,
       index: body_index,
       offset: anchor_offset + 1
@@ -114,7 +113,7 @@ export class InsertTextBodyService {
     value[section_index].body.splice(
       body_index,
       1,
-      this.insertUtilityService.createSectionBody(
+      this.insertTextUtilityService.createSectionBody(
         body.text,
         body.text,
         text,

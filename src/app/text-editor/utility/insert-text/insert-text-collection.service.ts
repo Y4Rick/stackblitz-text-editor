@@ -1,10 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { TextEditorHandle, TextEditorValue } from "../../text-editor.constants";
-import { InsertUtilityService } from "./insert-utility.service";
+import { InsertTextUtilityService } from "./insert-text-utility.service";
+import { UtilityService } from "../utility.service";
 
 @Injectable()
 export class InsertTextCollectionService {
-  private insertUtilityService = inject(InsertUtilityService);
+  private insertTextUtilityService = inject(InsertTextUtilityService);
+  private utilityService = inject(UtilityService);
 
   public handleInsert({
     text,
@@ -44,11 +46,11 @@ export class InsertTextCollectionService {
     const focus_section = focusNode!.parentElement!
       .parentElement as HTMLSpanElement;
 
-    const anchor_section_index = this.insertUtilityService.getDataAttrIndex(
+    const anchor_section_index = this.utilityService.getDataAttrIndex(
       anchor_section,
       "section_index"
     );
-    const focus_section_index = this.insertUtilityService.getDataAttrIndex(
+    const focus_section_index = this.utilityService.getDataAttrIndex(
       focus_section,
       "section_index"
     );
@@ -56,11 +58,11 @@ export class InsertTextCollectionService {
     const anchor_body = anchorNode!.parentElement as HTMLSpanElement;
     const focus_body = focusNode!.parentElement as HTMLSpanElement;
 
-    const anchor_body_index = this.insertUtilityService.getDataAttrIndex(
+    const anchor_body_index = this.utilityService.getDataAttrIndex(
       anchor_body,
       "body_index"
     );
-    const focus_body_index = this.insertUtilityService.getDataAttrIndex(
+    const focus_body_index = this.utilityService.getDataAttrIndex(
       focus_body,
       "body_index"
     );
@@ -104,7 +106,7 @@ export class InsertTextCollectionService {
     focus_offset: number;
     focus_body_index: number;
   }): TextEditorHandle {
-    const handle = this.insertUtilityService.getBodyHandleObject({
+    const handle = this.insertTextUtilityService.getBodyHandleObject({
       host: anchor_section,
       index: anchor_body_index,
       offset: anchor_offset + 1
@@ -218,7 +220,7 @@ export class InsertTextCollectionService {
     body.splice(
       anchor_body_index,
       body.length + 1,
-      this.insertUtilityService.createSectionBody(
+      this.insertTextUtilityService.createSectionBody(
         body[anchor_body_index].text,
         "",
         text,
@@ -281,7 +283,7 @@ export class InsertTextCollectionService {
     const value_focus_section_next_body =
       value_focus_section.body[focus_body_index + 1];
 
-    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+    const can_concat_bodies = this.insertTextUtilityService.canConcatBodies(
       value_anchor_section_body?.mod,
       value_focus_section_next_body?.mod
     );
@@ -289,7 +291,7 @@ export class InsertTextCollectionService {
     value_anchor_section.body.splice(
       anchor_body_index,
       value_anchor_section.body.length + 1,
-      this.insertUtilityService.createSectionBody(
+      this.insertTextUtilityService.createSectionBody(
         value_anchor_section_body.text,
         can_concat_bodies ? value_focus_section_next_body.text : "",
         text,
@@ -333,7 +335,7 @@ export class InsertTextCollectionService {
     const value_focus_section = value[focus_section_index];
     const value_focus_section_body = value_focus_section.body[focus_body_index];
 
-    const can_concat_bodies = this.insertUtilityService.canConcatBodies(
+    const can_concat_bodies = this.insertTextUtilityService.canConcatBodies(
       value_anchor_section_body?.mod,
       value_focus_section_body?.mod
     );
@@ -341,7 +343,7 @@ export class InsertTextCollectionService {
     value_anchor_section.body.splice(
       anchor_body_index,
       value_anchor_section.body.length + 1,
-      this.insertUtilityService.createSectionBody(
+      this.insertTextUtilityService.createSectionBody(
         value_anchor_section_body.text,
         can_concat_bodies ? value_focus_section_body.text : "",
         text,
@@ -352,7 +354,7 @@ export class InsertTextCollectionService {
       ...(can_concat_bodies
         ? value_focus_section.body.slice(focus_body_index + 1)
         : [
-            this.insertUtilityService.createSectionBody(
+            this.insertTextUtilityService.createSectionBody(
               "",
               value_focus_section_body.text,
               "",

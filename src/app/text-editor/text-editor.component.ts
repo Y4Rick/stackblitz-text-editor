@@ -20,7 +20,7 @@ import {
   TextEditorHandle,
   TextEditorSectionType
 } from "./text-editor.constants";
-import { InsertUtilityService } from "./utility/insert-text/insert-utility.service";
+import { InsertTextUtilityService } from "./utility/insert-text/insert-text-utility.service";
 import { InsertTextService } from "./utility/insert-text/insert-text.service";
 import { InsertTextBodyService } from "./utility/insert-text/insert-text-body.service";
 import { InsertTextSectionService } from "./utility/insert-text/insert-text-section.service";
@@ -42,7 +42,7 @@ import { UtilityService } from "./utility/utility.service";
     },
     UtilityService,
     TextEditorService,
-    InsertUtilityService,
+    InsertTextUtilityService,
     InsertTextService,
     InsertTextBodyService,
     InsertTextSectionService,

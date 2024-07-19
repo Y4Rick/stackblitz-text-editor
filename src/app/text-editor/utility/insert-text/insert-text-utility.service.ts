@@ -2,11 +2,7 @@ import { Injectable } from "@angular/core";
 import { TextEditorTextModification } from "../../text-editor.constants";
 
 @Injectable()
-export class InsertUtilityService {
-  public getDataAttrIndex(element: HTMLSpanElement, attr: string): number {
-    return Number(element.dataset[attr]);
-  }
-
+export class InsertTextUtilityService {
   public canConcatBodies(
     a: TextEditorTextModification[],
     b: TextEditorTextModification[]
